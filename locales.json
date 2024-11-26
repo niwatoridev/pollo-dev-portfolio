@@ -1,0 +1,12 @@
+{
+  "en-EN": {
+    "portfolio-mainpage-hero-preheader": "Hi, my name is",
+    "portfolio-mainpage-hero-header": "Esteban Munoz",
+    "portfolio-mainpage-hero-subheader": "and I create web solutions."
+  },
+  "es-MX": {
+    "portfolio-mainpage-hero-preheader": "Hola, mi nombre es",
+    "portfolio-mainpage-hero-header": "Esteban Muñoz",
+    "portfolio-mainpage-hero-subheader": "y construyo soluciones web."
+  }
+}
