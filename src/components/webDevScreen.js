@@ -119,6 +119,7 @@ export class WebDevScreen extends TranslatorClass {
     return {
       preferedLanguage: {type: String},
       typingTextVisible: {type: Boolean},
+      heroVideoSource: {type: String},
     };
   }
 
@@ -127,6 +128,7 @@ export class WebDevScreen extends TranslatorClass {
     this.preferedLanguage = 'es-MX';
     this.typingTextVisible = true;
     this.typedInstance = null;
+    this.heroVideoSource = '../../media/videos/blurredHeroShot.mp4';
   }
 
   _onLanguageChanged(event) {
@@ -181,7 +183,7 @@ export class WebDevScreen extends TranslatorClass {
       <div id="header">
         <div>
           <video class="heroVideo" autoplay muted loop>
-            <source src="../../media/videos/blurredHeroShot.mp4" />
+            <source src=${this.heroVideoSource} />
           </video>
         </div>
         <div id="headerTextContainer">
