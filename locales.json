@@ -2,19 +2,19 @@
   "en-EN": {
     "portfolio-mainpage-hero-preheader": "Hi, my name is",
     "portfolio-mainpage-hero-header": "Esteban Munoz",
-    "portfolio-mainpage-hero-subheader": "and I create web solutions.",
+    "portfolio-mainpage-hero-subheader": "and I turn ideas into websites.",
     "portfolio-mainpage-hero-typewriting-two": "I'm an Esports Producer at @VibesGG.",
     "portfolio-mainpage-hero-typewriting-three": "Leading teams to success since 2009.",
-    "portfolio-mainpage-hero-typewriting-four": "Also known as Pollo (pronounced /ˈpo.ʝo/).",
-    "portfolio-mainpage-hero-typewriting-one": "I work at Mexico's largest bank."
+    "portfolio-mainpage-hero-typewriting-four": "Also known as Pollo Rostizado (pronounced  /ˈpo.ʝo ros.tiˈsa.ðo/).",
+    "portfolio-mainpage-hero-typewriting-one": "Currently working at Mexico's largest bank."
   },
   "es-MX": {
     "portfolio-mainpage-hero-preheader": "Hola, mi nombre es",
     "portfolio-mainpage-hero-header": "Esteban Muñoz",
-    "portfolio-mainpage-hero-subheader": "y construyo soluciones web.",
-    "portfolio-mainpage-hero-typewriting-two": "También produzco esports en VibesGG.",
+    "portfolio-mainpage-hero-subheader": "y transformo ideas en sitios web.",
+    "portfolio-mainpage-hero-typewriting-two": "Soy productor de Esports en VibesGG.",
     "portfolio-mainpage-hero-typewriting-three": "Lidero equipos hacia el éxito desde 2009.",
-    "portfolio-mainpage-hero-typewriting-four": "Me conocen como Pollo Rostizado.",
+    "portfolio-mainpage-hero-typewriting-four": "También me conocen como Pollo Rostizado.",
     "portfolio-mainpage-hero-typewriting-one": "Trabajo en el banco más grande de México."
   }
 }

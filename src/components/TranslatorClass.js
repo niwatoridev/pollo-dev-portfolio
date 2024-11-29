@@ -19,7 +19,6 @@ export class TranslatorClass extends LitElement {
 
   setPreferedLanguage(preferences) {
     this.preferedLanguage = preferences;
-    console.log(this.preferedLanguage)
   }
 
   t(text) {

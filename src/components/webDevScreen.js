@@ -1,6 +1,7 @@
 import {html, css} from 'lit';
-import {TranslatorClass} from './translator';
+import {TranslatorClass} from './TranslatorClass';
 import Typed from 'typed.js';
+import './LanguageSwitcher';
 
 export class WebDevScreen extends TranslatorClass {
   static get styles() {
@@ -28,7 +29,7 @@ export class WebDevScreen extends TranslatorClass {
       #gradient {
         position: absolute;
         bottom: -1vw;
-        width: 100vw;
+        width: 99vw;
         height: 50vh;
         background: rgb(30, 30, 30);
         background: linear-gradient(
@@ -38,18 +39,14 @@ export class WebDevScreen extends TranslatorClass {
         );
       }
 
-      #headerSpacer {
-        height: 100vh;
-      }
-
       #headerTextContainer {
         color: white;
         position: absolute;
-        right: 30vw;
-        top: 20vw;
+        right: 18vw;
+        top: 22.5vw;
         display: flex;
         flex-direction: column;
-        width: 60vw;
+        width: 70vw;
       }
 
       #preheader {
@@ -70,6 +67,7 @@ export class WebDevScreen extends TranslatorClass {
         font-style: normal;
         margin: 0;
         color: #f4f4f4;
+        height: fit-content;
       }
 
       p {
@@ -78,7 +76,8 @@ export class WebDevScreen extends TranslatorClass {
 
       #headerText {
         color: transparent;
-        -webkit-text-stroke: 1.5px #0acbd5;
+        -webkit-text-stroke: 2px #0acbd5;
+        margin-bottom: -50px;
       }
 
       #subheader {
@@ -100,8 +99,18 @@ export class WebDevScreen extends TranslatorClass {
         width: fit-content;
       }
 
-      #cambiarIdioma {
-        border: solid red 10px;
+      #langButton {
+        position: absolute;
+        left: 1810px;
+        top: 20px;
+      }
+
+      body {
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #000;
       }
     `;
   }
@@ -117,26 +126,29 @@ export class WebDevScreen extends TranslatorClass {
     super();
     this.preferedLanguage = 'es-MX';
     this.typingTextVisible = true;
-    this.typedInstance = null; // Para manejar la instancia de Typed.js
+    this.typedInstance = null;
   }
 
-  // Llamado cuando el DOM del componente está actualizado
+  _onLanguageChanged(event) {
+    this.preferedLanguage = event.detail.language;
+    this.setPreferedLanguage(this.preferedLanguage);
+    this.typingTextVisible = false;
+    this.typingTextVisible = true;
+  }
+
   updated(changedProperties) {
     super.updated(changedProperties);
 
-    // Solo inicializar si la sección de typing está visible
     if (this.typingTextVisible) {
       const typingElement = this.shadowRoot.querySelector(
         '#typeWritingText span.typing'
       );
 
       if (typingElement) {
-        // Destruir instancia previa si existe
         if (this.typedInstance) {
           this.typedInstance.destroy();
         }
 
-        // Configurar opciones y crear nueva instancia
         this.typedInstance = new Typed(typingElement, {
           strings: [
             this.t('portfolio-mainpage-hero-typewriting-one'),
@@ -144,8 +156,8 @@ export class WebDevScreen extends TranslatorClass {
             this.t('portfolio-mainpage-hero-typewriting-three'),
             this.t('portfolio-mainpage-hero-typewriting-four'),
           ],
-          typeSpeed: 15,
-          backSpeed: 10,
+          typeSpeed: 20,
+          backSpeed: 8,
           backDelay: 2500,
           loop: true,
           smartBackspace: true,
@@ -154,16 +166,6 @@ export class WebDevScreen extends TranslatorClass {
         console.error('Elemento para Typed.js no encontrado en el DOM');
       }
     }
-  }
-
-  _changeLanguage() {
-    this.preferedLanguage =
-      this.preferedLanguage === 'en-EN' ? 'es-MX' : 'en-EN';
-    this.setPreferedLanguage(this.preferedLanguage);
-
-    // Marcar para re-renderizado
-    this.typingTextVisible = false;
-    this.typingTextVisible = true; // Fuerza Lit a actualizar el DOM
   }
 
   _renderTypeWriting() {
@@ -190,24 +192,16 @@ export class WebDevScreen extends TranslatorClass {
         </div>
       </div>
       <div id="gradient"></div>
-      <div id="headerSpacer"></div>
-    `;
-  }
-
-  renderMoreInfo() {
-    return html`
-      <div>
-        <button id="cambiarIdioma" @click=${this._changeLanguage}>
-          <p>cambiar idioma</p>
-        </button>
-      </div>
     `;
   }
 
   render() {
     return html`
       <div id="mainContainer">
-        ${this.renderHeader()}${this.renderMoreInfo()}
+        ${this.renderHeader()}<language-switcher
+          id="langButton"
+          @language-changed="${this._onLanguageChanged}"
+        ></language-switcher>
       </div>
     `;
   }

@@ -6,9 +6,9 @@
     <title>&lt;my-element> Demo</title>
     <script src="../node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
     <script src="../node_modules/lit/polyfill-support.js"></script>
-    <script type="module" src="./src/components/translator.js"></script>
-    <script type="module" src="./src/components/webDevScreen.js"></script>
-    <script type="module" src="dist/main.js" crossorigin></script>
+    <script type="module" src="./src/components/TranslatorClass.js"></script>
+    <script type="module" src="./src/components/WebDevScreen.js"></script>
+    <script src="https://code.iconify.design/1/1.0.4/iconify.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -19,6 +19,31 @@
   <style>
     body {
       margin: 0;
+      overflow-x: hidden;
+    }
+
+    /* Estilo general para la barra de desplazamiento */
+    ::-webkit-scrollbar {
+      width: 6px; /* Ancho de la barra de desplazamiento vertical */
+    }
+
+    /* Estilo para el rastro de la barra de desplazamiento */
+    ::-webkit-scrollbar-track {
+      background: #1e1e1e;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #0acbd5;
+      border-radius: 50px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #b9b9b9;
+      height: 10px;
+    }
+
+    ::-webkit-scrollbar-button {
+      display: none;
     }
   </style>
   <body>
