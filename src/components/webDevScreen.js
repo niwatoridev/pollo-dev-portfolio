@@ -1,6 +1,6 @@
 import {html, css} from 'lit';
 import {TranslatorClass} from './translator';
-import '../../node_modules/wc-typed-js/src/typed';
+import Typed from 'typed.js';
 
 export class WebDevScreen extends TranslatorClass {
   static get styles() {
@@ -19,6 +19,10 @@ export class WebDevScreen extends TranslatorClass {
         flex-direction: column;
         position: absolute;
         bottom: -1vw;
+      }
+
+      .heroVideo {
+        opacity: 0.4;
       }
 
       #gradient {
@@ -113,36 +117,59 @@ export class WebDevScreen extends TranslatorClass {
     super();
     this.preferedLanguage = 'es-MX';
     this.typingTextVisible = true;
+    this.typedInstance = null; // Para manejar la instancia de Typed.js
+  }
+
+  // Llamado cuando el DOM del componente está actualizado
+  updated(changedProperties) {
+    super.updated(changedProperties);
+
+    // Solo inicializar si la sección de typing está visible
+    if (this.typingTextVisible) {
+      const typingElement = this.shadowRoot.querySelector(
+        '#typeWritingText span.typing'
+      );
+
+      if (typingElement) {
+        // Destruir instancia previa si existe
+        if (this.typedInstance) {
+          this.typedInstance.destroy();
+        }
+
+        // Configurar opciones y crear nueva instancia
+        this.typedInstance = new Typed(typingElement, {
+          strings: [
+            this.t('portfolio-mainpage-hero-typewriting-one'),
+            this.t('portfolio-mainpage-hero-typewriting-two'),
+            this.t('portfolio-mainpage-hero-typewriting-three'),
+            this.t('portfolio-mainpage-hero-typewriting-four'),
+          ],
+          typeSpeed: 15,
+          backSpeed: 10,
+          backDelay: 2500,
+          loop: true,
+          smartBackspace: true,
+        });
+      } else {
+        console.error('Elemento para Typed.js no encontrado en el DOM');
+      }
+    }
   }
 
   _changeLanguage() {
-    let oldTypeWritingSpan = this.shadowRoot.getElementById('typeWritingText');
-    this.preferedLanguage === 'en-EN'
-      ? (this.preferedLanguage = 'es-MX')
-      : (this.preferedLanguage = 'en-EN');
+    this.preferedLanguage =
+      this.preferedLanguage === 'en-EN' ? 'es-MX' : 'en-EN';
     this.setPreferedLanguage(this.preferedLanguage);
-    oldTypeWritingSpan.remove();
-    this._renderTypeWriting();
+
+    // Marcar para re-renderizado
+    this.typingTextVisible = false;
+    this.typingTextVisible = true; // Fuerza Lit a actualizar el DOM
   }
 
   _renderTypeWriting() {
-    this.typingTextVisible = true;
     return html`
       <div id="typeWritingTextContainer">
-        <typed-js
-          strings="${this.t(
-            'portfolio-mainpage-hero-typewriting-one'
-          )}, ${this.t('portfolio-mainpage-hero-typewriting-two')}, ${this.t(
-            'portfolio-mainpage-hero-typewriting-three'
-          )}, ${this.t('portfolio-mainpage-hero-typewriting-four')}"
-          loop
-          smartBackspace
-          backSpeed="10"
-          typeSpeed="15"
-          backDelay="2500"
-        >
-          <p id="typeWritingText"><span class="typing"></span></p>
-        </typed-js>
+        <p id="typeWritingText"><span class="typing"></span></p>
       </div>
     `;
   }
@@ -151,7 +178,7 @@ export class WebDevScreen extends TranslatorClass {
     return html`
       <div id="header">
         <div>
-          <video autoplay muted loop>
+          <video class="heroVideo" autoplay muted loop>
             <source src="../../media/videos/blurredHeroShot.mp4" />
           </video>
         </div>
@@ -178,7 +205,11 @@ export class WebDevScreen extends TranslatorClass {
   }
 
   render() {
-    return html` <div id="mainContainer">${this.renderHeader()}</div> `;
+    return html`
+      <div id="mainContainer">
+        ${this.renderHeader()}${this.renderMoreInfo()}
+      </div>
+    `;
   }
 }
 
