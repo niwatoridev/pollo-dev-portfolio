@@ -76,7 +76,7 @@ export class WebDevScreen extends TranslatorClass {
 
       #headerText {
         color: transparent;
-        -webkit-text-stroke: 2px #0acbd5;
+        -webkit-text-stroke: 1.5px #0acbd5;
         margin-bottom: -50px;
       }
 
@@ -163,6 +163,7 @@ export class WebDevScreen extends TranslatorClass {
           backDelay: 2500,
           loop: true,
           smartBackspace: true,
+          showCursor: false,
         });
       } else {
         console.error('Elemento para Typed.js no encontrado en el DOM');
