@@ -147,7 +147,7 @@ export class WebDevScreen extends TranslatorClass {
         height: 100px;
         transform-style: preserve-3d;
         transition: transform 0.8s ease-in-out;
-        transform: translateX(-50vw) translateY(-12vh);
+        transform: translateX(-57vw) translateY(-10vh);
       }
 
       .carouselPanel {
@@ -377,7 +377,7 @@ export class WebDevScreen extends TranslatorClass {
                 style="
                   transform:
                     rotate(${currentAngle}deg)
-                    translate(150px, 0);
+                    translate(350px, 0);
                   opacity: ${opacity};
                 "
               >
