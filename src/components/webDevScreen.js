@@ -6,12 +6,22 @@ import './LanguageSwitcher';
 export class WebDevScreen extends TranslatorClass {
   static get styles() {
     return css`
+      :host {
+        display: block;
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+      }
+
       #mainContainer {
         display: flex;
         flex-direction: column;
         margin: 0;
+        padding: 0;
         background-color: #1e1e1e;
-        height: 200vh;
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
       }
 
       #header {
@@ -41,12 +51,11 @@ export class WebDevScreen extends TranslatorClass {
 
       #headerTextContainer {
         color: white;
-        position: absolute;
-        right: 18vw;
-        top: 22.5vw;
         display: flex;
         flex-direction: column;
         width: 70vw;
+        margin: 0;
+        padding: 0;
       }
 
       #preheader {
@@ -120,6 +129,60 @@ export class WebDevScreen extends TranslatorClass {
         justify-content: center;
         background-color: #000;
       }
+
+      /* Carousel Styles */
+      .carouselContainer {
+        position: absolute;
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        bottom: 0;
+      }
+
+      .carouselWheel {
+        position: relative;
+        width: 100px;
+        height: 100px;
+        transform-style: preserve-3d;
+        transition: transform 0.8s ease-in-out;
+        transform: translateX(-50vw) translateY(-12vh);
+      }
+
+      .carouselPanel {
+        position: absolute;
+        width: 70vw;
+        transition: transform 0.8s ease-in-out, opacity 0.8s ease-in-out;
+        transform-origin: 0 0;
+      }
+
+      .carouselButtons {
+        position: absolute;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        z-index: 100;
+        left: 2.5%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+      }
+
+      .carouselButton {
+        padding: 0;
+        background: none;
+        color: #0acbd5;
+        border: none;
+        cursor: pointer;
+        font-size: 32px;
+        transition: all 0.3s ease;
+      }
+
+      .carouselButton:hover {
+        color: #ffffff;
+        transform: scale(1.3);
+        filter: drop-shadow(0 0 10px #0acbd5);
+      }
     `;
   }
 
@@ -128,6 +191,8 @@ export class WebDevScreen extends TranslatorClass {
       preferedLanguage: {type: String},
       typingTextVisible: {type: Boolean},
       heroVideoSource: {type: String},
+      currentRotation: {type: Number},
+      numberOfPanels: {type: Number},
     };
   }
 
@@ -137,6 +202,16 @@ export class WebDevScreen extends TranslatorClass {
     this.typingTextVisible = true;
     this.typedInstance = null;
     this.heroVideoSource = '../../media/videos/blurredHeroShot.mp4';
+
+    // Carousel configuration
+    this.numberOfPanels = 4; // Escalable: cambia este número para más paneles
+    this.currentRotation = 0; // Ángulo actual de rotación en grados
+    this.panelContents = [
+      {title: 'WEB DEVELOPER', subtitle: 'AND ESPORTS PRODUCER'},
+      {title: 'EXPERIENCIA', subtitle: 'PROFESIONAL'},
+      {title: 'PORTFOLIO', subtitle: 'DE TRABAJOS'},
+      {title: 'CONTACTO', subtitle: 'Y REDES'},
+    ];
   }
 
   _onLanguageChanged(event) {
@@ -187,6 +262,79 @@ export class WebDevScreen extends TranslatorClass {
     `;
   }
 
+  /**
+   * Calcula el ángulo de cada panel basado en el número total de paneles
+   * Panel 1 (index 0) debe estar a 0° (derecha del círculo)
+   */
+  _getPanelAngle(index) {
+    const degreesPerPanel = 360 / this.numberOfPanels;
+    // Sin offset - Panel 1 (index 0) en 0°, Panel 2 en 90°, Panel 3 en 180°, Panel 4 en 270°
+    return index * degreesPerPanel;
+  }
+
+  /**
+   * Calcula la rotación individual del panel para que aparezca derecho
+   * Paneles horizontales (derecha/izquierda): 0° de rotación del contenido
+   * Paneles verticales (arriba/abajo): 90° o -90° de rotación del contenido
+   */
+  _getPanelContentRotation(positionAngle) {
+    // Normalizar el ángulo a 0-360
+    const normalized = ((positionAngle % 360) + 360) % 360;
+
+    // Derecha (0°): sin rotación
+    if (normalized >= 315 || normalized < 45) return 0;
+    // Abajo (90°): rotar -90° para que el texto quede vertical
+    if (normalized >= 45 && normalized < 135) return -90;
+    // Izquierda (180°): sin rotación
+    if (normalized >= 135 && normalized < 225) return 0;
+    // Arriba (270°): rotar 90° para que el texto quede vertical
+    if (normalized >= 225 && normalized < 315) return 90;
+
+    return 0;
+  }
+
+  /**
+   * Calcula la opacidad del panel basado en su posición
+   * Solo el panel en posición 0° (derecha del círculo) debe tener opacity 1
+   */
+  _getPanelOpacity(positionAngle) {
+    const normalized = ((positionAngle % 360) + 360) % 360;
+    // Panel a 0° (derecha del círculo): opacity 1
+    if (normalized >= 315 || normalized < 45) return 1;
+    // Otros paneles: opacity 0 (ocultos)
+    return 0;
+  }
+
+  /**
+   * Calcula la posición del panel en el círculo
+   */
+  _getPanelPosition(angle) {
+    const radius = 150; // Radio del carrusel en píxeles (reducido para acercar paneles)
+    const rad = (angle * Math.PI) / 180;
+    return {
+      x: Math.cos(rad) * radius,
+      y: Math.sin(rad) * radius,
+    };
+  }
+
+  /**
+   * Rota el carrusel en sentido horario
+   */
+  rotateClockwise() {
+    const degreesPerPanel = 360 / this.numberOfPanels;
+    this.currentRotation -= degreesPerPanel;
+    this.requestUpdate();
+  }
+
+  /**
+   * Rota el carrusel en sentido antihorario
+   */
+  rotateCounterClockwise() {
+    const degreesPerPanel = 360 / this.numberOfPanels;
+    this.currentRotation += degreesPerPanel;
+    this.requestUpdate();
+  }
+
   renderHeader() {
     return html`
       <div id="header">
@@ -195,21 +343,74 @@ export class WebDevScreen extends TranslatorClass {
             <source src=${this.heroVideoSource} />
           </video>
         </div>
-        <div id="headerTextContainer">
-          <p id="preheader">${this.t('portfolio-mainpage-hero-preheader')}</p>
-          <h1 id="headerText">${this.t('portfolio-mainpage-hero-header')}</h1>
-          <h1 id="subheader">${this.t('portfolio-mainpage-hero-subheader')}</h1>
-          ${this._renderTypeWriting()}
-        </div>
       </div>
       <div id="gradient"></div>
+    `;
+  }
+
+  _renderPanelOne() {
+    return html`
+      <div id="headerTextContainer">
+        <p id="preheader">${this.t('portfolio-mainpage-hero-preheader')}</p>
+        <h1 id="headerText">${this.t('portfolio-mainpage-hero-header')}</h1>
+        <h1 id="subheader">${this.t('portfolio-mainpage-hero-subheader')}</h1>
+        ${this._renderTypeWriting()}
+      </div>
+    `;
+  }
+
+  renderCarousel() {
+    return html`
+      <div class="carouselContainer">
+        <div class="carouselWheel">
+          ${this.panelContents.map((content, index) => {
+            // Calcular el ángulo actual del panel considerando la rotación
+            const baseAngle = this._getPanelAngle(index);
+            const currentAngle = baseAngle + this.currentRotation;
+
+            // Opacidad basada en posición actual
+            const opacity = this._getPanelOpacity(currentAngle);
+
+            return html`
+              <div
+                class="carouselPanel"
+                style="
+                  transform:
+                    rotate(${currentAngle}deg)
+                    translate(150px, 0);
+                  opacity: ${opacity};
+                "
+              >
+                ${index === 0
+                  ? this._renderPanelOne()
+                  : html`
+                      <div id="headerTextContainer">
+                        <p id="preheader">Panel ${index + 1}</p>
+                        <h1 id="headerText">${content.title}</h1>
+                        <h1 id="subheader">${content.subtitle}</h1>
+                      </div>
+                    `}
+              </div>
+            `;
+          })}
+        </div>
+        <div class="carouselButtons">
+          <button class="carouselButton" @click=${this.rotateClockwise}>
+            ▲
+          </button>
+          <button class="carouselButton" @click=${this.rotateCounterClockwise}>
+            ▼
+          </button>
+        </div>
+      </div>
     `;
   }
 
   render() {
     return html`
       <div id="mainContainer">
-        ${this.renderHeader()}<language-switcher
+        ${this.renderHeader()} ${this.renderCarousel()}
+        <language-switcher
           id="langButton"
           @language-changed="${this._onLanguageChanged}"
         ></language-switcher>
