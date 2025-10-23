@@ -2,6 +2,10 @@ import {html, css} from 'lit';
 import {TranslatorClass} from './TranslatorClass';
 import Typed from 'typed.js';
 import './LanguageSwitcher';
+import './ExperienciaProfesional';
+import './Portfolio';
+import './Contacto';
+import './NavigationBar';
 
 export class WebDevScreen extends TranslatorClass {
   static get styles() {
@@ -153,8 +157,12 @@ export class WebDevScreen extends TranslatorClass {
       .carouselPanel {
         position: absolute;
         width: 70vw;
-        transition: transform 0.8s ease-in-out, opacity 0.8s ease-in-out;
+        transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1),
+          opacity 1s cubic-bezier(0.4, 0, 0.2, 1);
         transform-origin: 0 0;
+        will-change: transform, opacity;
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
       }
 
       .carouselButtons {
@@ -171,17 +179,142 @@ export class WebDevScreen extends TranslatorClass {
       .carouselButton {
         padding: 0;
         background: none;
-        color: #0acbd5;
+        color: #ffffff;
         border: none;
         cursor: pointer;
         font-size: 32px;
-        transition: all 0.3s ease;
+        transition: color 0.3s ease;
       }
 
       .carouselButton:hover {
+        color: #0acbd5;
+      }
+
+      /* Transition Styles */
+      .viewContainer {
+        position: absolute;
+        width: 100vw;
+        height: 100vh;
+        top: 0;
+        left: 0;
+        transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1),
+          opacity 1s cubic-bezier(0.4, 0, 0.2, 1);
+        will-change: transform, opacity;
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+        -webkit-transform: translateZ(0);
+        transform: translateZ(0);
+      }
+
+      .viewContainer.active {
+        transform: translateX(0);
+        opacity: 1;
+      }
+
+      .viewContainer.hidden {
+        display: none;
+      }
+
+      .viewContainer.slideOutLeft {
+        transform: translateX(-100vw);
+        opacity: 0;
+      }
+
+      .viewContainer.slideInFromRight {
+        animation: slideInRight 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      }
+
+      .viewContainer.slideOutRight {
+        animation: slideOutRight 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      }
+
+      .viewContainer.slideInFromLeft {
+        animation: slideInLeft 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      }
+
+      @keyframes slideInRight {
+        from {
+          transform: translateX(100vw);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+
+      @keyframes slideOutRight {
+        from {
+          transform: translateX(0);
+          opacity: 1;
+        }
+        to {
+          transform: translateX(100vw);
+          opacity: 0;
+        }
+      }
+
+      @keyframes slideInLeft {
+        from {
+          transform: translateX(-100vw);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+
+      .detailPageContainer {
+        position: absolute;
+        width: 100vw;
+        height: 100vh;
+        top: 0;
+        left: 0;
+      }
+
+      /* Fade in for navigation elements */
+      navigation-bar {
+        opacity: 0;
+        animation: fadeInNav 0.6s ease-in-out 1.5s forwards;
+      }
+
+      /* Fade out for navigation elements when going back */
+      navigation-bar.fadeOut {
+        animation: fadeOutNav 0.6s ease-in-out forwards;
+      }
+
+      @keyframes fadeInNav {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      @keyframes fadeOutNav {
+        from {
+          opacity: 1;
+        }
+        to {
+          opacity: 0;
+        }
+      }
+
+      /* Clickeable panel cursor */
+      .carouselPanel.clickeable {
+        cursor: pointer;
+      }
+
+      .carouselPanel.clickeable #headerTextContainer {
+        pointer-events: auto;
+      }
+
+      .carouselPanel.clickeable:hover #headerTextContainer h1 {
         color: #ffffff;
-        transform: scale(1.3);
-        filter: drop-shadow(0 0 10px #0acbd5);
+        filter: drop-shadow(0 0 15px #0acbd5);
+        transition: all 0.3s ease;
       }
     `;
   }
@@ -193,6 +326,13 @@ export class WebDevScreen extends TranslatorClass {
       heroVideoSource: {type: String},
       currentRotation: {type: Number},
       numberOfPanels: {type: Number},
+      currentView: {type: String},
+      previousView: {type: String},
+      lastPanelIndex: {type: Number},
+      isTransitioning: {type: Boolean},
+      transitionDirection: {type: String}, // 'forward' o 'back'
+      keepDetailVisible: {type: Boolean}, // Mantener detalle visible durante transición de regreso
+      isFadingOut: {type: Boolean}, // Nav bar y botón están haciendo fade out
     };
   }
 
@@ -207,11 +347,20 @@ export class WebDevScreen extends TranslatorClass {
     this.numberOfPanels = 4; // Escalable: cambia este número para más paneles
     this.currentRotation = 0; // Ángulo actual de rotación en grados
     this.panelContents = [
-      {title: 'WEB DEVELOPER', subtitle: 'AND ESPORTS PRODUCER'},
-      {title: 'EXPERIENCIA', subtitle: 'PROFESIONAL'},
-      {title: 'PORTFOLIO', subtitle: 'DE TRABAJOS'},
-      {title: 'CONTACTO', subtitle: 'Y REDES'},
+      {title: 'WEB DEVELOPER', subtitle: 'AND ESPORTS PRODUCER', view: null}, // Panel 1: 0° (derecha/visible) - no clickeable
+      {title: 'EXPERIENCIA', subtitle: 'PROFESIONAL', view: 'experiencia'}, // Panel 2: 270° (arriba)
+      {title: 'PORTFOLIO', subtitle: 'DE TRABAJOS', view: 'portfolio'}, // Panel 3: 180° (izquierda)
+      {title: 'CONTACTO', subtitle: 'Y REDES', view: 'contacto'}, // Panel 4: 90° (abajo)
     ];
+
+    // Navigation state
+    this.currentView = 'revolver'; // 'revolver', 'experiencia', 'portfolio', 'contacto'
+    this.previousView = 'revolver'; // Vista anterior (para transiciones)
+    this.lastPanelIndex = 0; // Para recordar la posición del carrusel
+    this.isTransitioning = false; // Para prevenir clicks durante transiciones
+    this.transitionDirection = 'forward'; // 'forward' (panel->detalle) o 'back' (detalle->panel)
+    this.keepDetailVisible = false; // Mantener detalle visible durante transición de regreso
+    this.isFadingOut = false; // Nav bar y botón están haciendo fade out
   }
 
   _onLanguageChanged(event) {
@@ -265,11 +414,12 @@ export class WebDevScreen extends TranslatorClass {
   /**
    * Calcula el ángulo de cada panel basado en el número total de paneles
    * Panel 1 (index 0) debe estar a 0° (derecha del círculo)
+   * Los paneles van en sentido ANTIHORARIO: 0° → 270° → 180° → 90°
    */
   _getPanelAngle(index) {
     const degreesPerPanel = 360 / this.numberOfPanels;
-    // Sin offset - Panel 1 (index 0) en 0°, Panel 2 en 90°, Panel 3 en 180°, Panel 4 en 270°
-    return index * degreesPerPanel;
+    // Invertir dirección: multiplica por -1 para ir antihorario
+    return (-index * degreesPerPanel + 360) % 360;
   }
 
   /**
@@ -318,7 +468,7 @@ export class WebDevScreen extends TranslatorClass {
   }
 
   /**
-   * Rota el carrusel en sentido horario
+   * Rota el carrusel en sentido horario (botón ▲ - panel anterior)
    */
   rotateClockwise() {
     const degreesPerPanel = 360 / this.numberOfPanels;
@@ -327,12 +477,137 @@ export class WebDevScreen extends TranslatorClass {
   }
 
   /**
-   * Rota el carrusel en sentido antihorario
+   * Rota el carrusel en sentido antihorario (botón ▼ - panel siguiente)
    */
   rotateCounterClockwise() {
     const degreesPerPanel = 360 / this.numberOfPanels;
     this.currentRotation += degreesPerPanel;
     this.requestUpdate();
+  }
+
+  /**
+   * Obtiene el índice del panel actualmente visible
+   */
+  _getActivePanelIndex() {
+    // Buscar qué panel tiene opacity 1 (está visible)
+    for (let i = 0; i < this.numberOfPanels; i++) {
+      const baseAngle = this._getPanelAngle(i);
+      const currentAngle = baseAngle + this.currentRotation;
+      const opacity = this._getPanelOpacity(currentAngle);
+
+      if (opacity === 1) {
+        console.log('Active panel found:', i);
+        return i;
+      }
+    }
+    return 0; // Fallback al primer panel
+  }
+
+  /**
+   * Maneja el click en un panel
+   */
+  _handlePanelClick(index, view) {
+    console.log('Panel clicked:', index, 'view:', view);
+    if (this.isTransitioning) {
+      console.log('Transitioning, ignoring click');
+      return;
+    }
+    if (!view) {
+      console.log('No view defined, ignoring click');
+      return; // Panel 1 no es clickeable
+    }
+
+    const activePanelIndex = this._getActivePanelIndex();
+    console.log('Active panel index:', activePanelIndex);
+
+    if (index !== activePanelIndex) {
+      console.log('Panel is not active, ignoring click');
+      return; // Solo el panel activo es clickeable
+    }
+
+    console.log('Navigating to view:', view);
+    this._navigateToView(view);
+  }
+
+  /**
+   * Navega a una vista específica
+   */
+  _navigateToView(view, direction = 'forward') {
+    console.log('Navigating to:', view, 'Direction:', direction);
+    if (this.isTransitioning) return;
+    if (this.currentView === view) return;
+
+    // Guardar el índice del panel actual si estamos en el revolver
+    if (this.currentView === 'revolver') {
+      this.lastPanelIndex = this._getActivePanelIndex();
+    }
+
+    // Establecer la dirección de la transición
+    this.transitionDirection = direction;
+    this.previousView = this.currentView;
+    this.isTransitioning = true;
+
+    const startTime = Date.now();
+
+    if (direction === 'back') {
+      // REGRESO: Primero fade out del nav bar y botón, LUEGO slide
+      console.log('Iniciando fade out...');
+      this.isFadingOut = true;
+      this.keepDetailVisible = true;
+
+      // Esperar 600ms (duración del fade out) antes de iniciar el slide
+      setTimeout(() => {
+        console.log('Fade out completado, iniciando slide...');
+        // Ahora sí, cambiar la vista para iniciar el slide
+        this.currentView = view;
+        this.requestUpdate();
+
+        // Esperar 1000ms (duración del slide) antes de limpiar
+        setTimeout(() => {
+          const elapsed = Date.now() - startTime;
+          console.log(
+            'Transición completa después de',
+            elapsed,
+            'ms - limpiando estado'
+          );
+          this.isTransitioning = false;
+          this.keepDetailVisible = false;
+          this.isFadingOut = false;
+          this.requestUpdate();
+        }, 1000);
+      }, 600);
+    } else {
+      // AVANCE: Comportamiento normal (slide inmediato)
+      console.log('Previous view:', this.previousView, 'New view:', view);
+      this.currentView = view;
+      this.requestUpdate();
+
+      // Esperar a que termine la transición antes de limpiar
+      setTimeout(() => {
+        const elapsed = Date.now() - startTime;
+        console.log(
+          'Timeout ejecutado después de',
+          elapsed,
+          'ms - limpiando estado'
+        );
+        this.isTransitioning = false;
+        this.requestUpdate();
+      }, 1000);
+    }
+  }
+
+  /**
+   * Maneja la navegación desde la Navigation Bar
+   */
+  _handleNavigate(event) {
+    this._navigateToView(event.detail.view);
+  }
+
+  /**
+   * Maneja el botón de regreso
+   */
+  _handleNavigateBack() {
+    this._navigateToView('revolver', 'back');
   }
 
   renderHeader() {
@@ -371,21 +646,26 @@ export class WebDevScreen extends TranslatorClass {
             // Opacidad basada en posición actual
             const opacity = this._getPanelOpacity(currentAngle);
 
+            // Determinar si el panel es clickeable
+            const isActive = opacity === 1;
+            const isClickeable = isActive && content.view !== null;
+
             return html`
               <div
-                class="carouselPanel"
+                class="carouselPanel ${isClickeable ? 'clickeable' : ''}"
                 style="
                   transform:
                     rotate(${currentAngle}deg)
                     translate(350px, 0);
                   opacity: ${opacity};
                 "
+                @click=${() => this._handlePanelClick(index, content.view)}
               >
                 ${index === 0
                   ? this._renderPanelOne()
                   : html`
                       <div id="headerTextContainer">
-                        <p id="preheader">Panel ${index + 1}</p>
+                        <p id="preheader">ㅤ</p>
                         <h1 id="headerText">${content.title}</h1>
                         <h1 id="subheader">${content.subtitle}</h1>
                       </div>
@@ -406,10 +686,110 @@ export class WebDevScreen extends TranslatorClass {
     `;
   }
 
+  _renderDetailPageFor(view) {
+    switch (view) {
+      case 'experiencia':
+        return html`<experiencia-profesional
+          .preferedLanguage=${this.preferedLanguage}
+          .isFadingOut=${this.isFadingOut}
+          @navigate-back=${this._handleNavigateBack}
+        ></experiencia-profesional>`;
+      case 'portfolio':
+        return html`<portfolio-page
+          .preferedLanguage=${this.preferedLanguage}
+          .isFadingOut=${this.isFadingOut}
+          @navigate-back=${this._handleNavigateBack}
+        ></portfolio-page>`;
+      case 'contacto':
+        return html`<contacto-page
+          .preferedLanguage=${this.preferedLanguage}
+          .isFadingOut=${this.isFadingOut}
+          @navigate-back=${this._handleNavigateBack}
+        ></contacto-page>`;
+      default:
+        return html``;
+    }
+  }
+
   render() {
+    const isRevolver = this.currentView === 'revolver';
+    const isGoingBack = this.transitionDirection === 'back';
+
+    // Clases para el revolver
+    let revolverClass = 'viewContainer';
+    if (isRevolver) {
+      // Si estamos en revolver Y estamos en transición de regreso, animar entrada desde izquierda
+      // Si NO estamos en transición, está activo normalmente
+      revolverClass +=
+        isGoingBack && this.isTransitioning ? ' slideInFromLeft' : ' active';
+    } else {
+      // Si NO estamos en revolver, salir hacia la izquierda
+      revolverClass += ' slideOutLeft';
+    }
+
+    // Clases para la página de detalle
+    let detailClass = 'viewContainer';
+    let shouldShowDetail = false;
+
+    if (!isRevolver) {
+      // Estamos en una página de detalle: mostrarla entrando desde la derecha
+      detailClass += ' slideInFromRight';
+      shouldShowDetail = true;
+    } else if (this.keepDetailVisible) {
+      // Estamos regresando al revolver pero mantenemos el detalle visible para la animación
+      detailClass += ' slideOutRight';
+      shouldShowDetail = true;
+    } else {
+      // Estamos en revolver y NO en transición: ocultar
+      detailClass += ' hidden';
+      shouldShowDetail = false;
+    }
+
+    // Determinar qué vista mostrar en el detalle
+    const detailViewToShow = !isRevolver ? this.currentView : this.previousView;
+
+    console.log(
+      'Render @',
+      Date.now(),
+      '- isRevolver:',
+      isRevolver,
+      'isGoingBack:',
+      isGoingBack,
+      'isTransitioning:',
+      this.isTransitioning,
+      'keepDetailVisible:',
+      this.keepDetailVisible,
+      'shouldShowDetail:',
+      shouldShowDetail,
+      'detailClass:',
+      detailClass
+    );
+
     return html`
       <div id="mainContainer">
-        ${this.renderHeader()} ${this.renderCarousel()}
+        ${this.renderHeader()}
+
+        <!-- Revolver Carousel - SIEMPRE renderizado -->
+        <div class="${revolverClass}">${this.renderCarousel()}</div>
+
+        <!-- Detail Pages - Renderizado condicionalmente -->
+        <div class="${detailClass}">
+          ${shouldShowDetail && detailViewToShow
+            ? html`
+                <navigation-bar
+                  class="${this.isFadingOut ? 'fadeOut' : ''}"
+                  .activeView=${detailViewToShow}
+                  .preferedLanguage=${this.preferedLanguage}
+                  @navigate=${this._handleNavigate}
+                ></navigation-bar>
+                <div class="detailPageContainer">
+                  ${this._renderDetailPageFor(detailViewToShow)}
+                </div>
+              `
+            : ''}
+        </div>
+
+        <!-- Language Switcher - Always visible and fixed -->
         <language-switcher
           id="langButton"
           @language-changed="${this._onLanguageChanged}"
