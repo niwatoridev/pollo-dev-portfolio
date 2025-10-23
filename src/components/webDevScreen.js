@@ -60,6 +60,11 @@ export class WebDevScreen extends TranslatorClass {
         width: 70vw;
         margin: 0;
         padding: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      #headerTextContainer.languageFading {
+        opacity: 0;
       }
 
       #preheader {
@@ -277,11 +282,18 @@ export class WebDevScreen extends TranslatorClass {
       navigation-bar {
         opacity: 0;
         animation: fadeInNav 0.6s ease-in-out 1.5s forwards;
+        transition: opacity 0.3s ease;
       }
 
       /* Fade out for navigation elements when going back */
       navigation-bar.fadeOut {
         animation: fadeOutNav 0.6s ease-in-out forwards;
+      }
+
+      /* Language fade for navigation bar */
+      navigation-bar.languageFading {
+        opacity: 0 !important;
+        animation: none;
       }
 
       @keyframes fadeInNav {
@@ -333,6 +345,8 @@ export class WebDevScreen extends TranslatorClass {
       transitionDirection: {type: String}, // 'forward' o 'back'
       keepDetailVisible: {type: Boolean}, // Mantener detalle visible durante transición de regreso
       isFadingOut: {type: Boolean}, // Nav bar y botón están haciendo fade out
+      isSpinning: {type: Boolean}, // Carrusel está girando como revólver
+      isLanguageFading: {type: Boolean}, // Texto está en fade durante cambio de idioma
     };
   }
 
@@ -361,13 +375,31 @@ export class WebDevScreen extends TranslatorClass {
     this.transitionDirection = 'forward'; // 'forward' (panel->detalle) o 'back' (detalle->panel)
     this.keepDetailVisible = false; // Mantener detalle visible durante transición de regreso
     this.isFadingOut = false; // Nav bar y botón están haciendo fade out
+    this.isSpinning = false; // Carrusel está girando como revólver
+    this.isLanguageFading = false; // Texto está en fade durante cambio de idioma
   }
 
   _onLanguageChanged(event) {
-    this.preferedLanguage = event.detail.language;
-    this.setPreferedLanguage(this.preferedLanguage);
-    this.typingTextVisible = false;
-    this.typingTextVisible = true;
+    // Iniciar fade out
+    this.isLanguageFading = true;
+
+    // Después de 300ms (fade out completo), cambiar idioma
+    setTimeout(() => {
+      this.preferedLanguage = event.detail.language;
+      this.setPreferedLanguage(this.preferedLanguage);
+      this.typingTextVisible = false;
+      this.requestUpdate();
+
+      // Pequeño delay para asegurar que el DOM se actualice
+      setTimeout(() => {
+        this.typingTextVisible = true;
+        // Después de 50ms, iniciar fade in
+        setTimeout(() => {
+          this.isLanguageFading = false;
+          this.requestUpdate();
+        }, 50);
+      }, 50);
+    }, 300);
   }
 
   updated(changedProperties) {
@@ -449,9 +481,17 @@ export class WebDevScreen extends TranslatorClass {
    */
   _getPanelOpacity(positionAngle) {
     const normalized = ((positionAngle % 360) + 360) % 360;
-    // Panel a 0° (derecha del círculo): opacity 1
+
+    // Durante el spin, todos los paneles tienen opacidad para verse girando
+    if (this.isSpinning) {
+      // Panel activo (0°): opacity 1
+      if (normalized >= 315 || normalized < 45) return 1;
+      // Paneles laterales: opacity media para efecto de profundidad
+      return 0.4;
+    }
+
+    // Comportamiento normal: solo panel activo visible
     if (normalized >= 315 || normalized < 45) return 1;
-    // Otros paneles: opacity 0 (ocultos)
     return 0;
   }
 
@@ -508,13 +548,9 @@ export class WebDevScreen extends TranslatorClass {
    */
   _handlePanelClick(index, view) {
     console.log('Panel clicked:', index, 'view:', view);
-    if (this.isTransitioning) {
-      console.log('Transitioning, ignoring click');
+    if (this.isTransitioning || this.isSpinning) {
+      console.log('Transitioning or spinning, ignoring click');
       return;
-    }
-    if (!view) {
-      console.log('No view defined, ignoring click');
-      return; // Panel 1 no es clickeable
     }
 
     const activePanelIndex = this._getActivePanelIndex();
@@ -525,8 +561,54 @@ export class WebDevScreen extends TranslatorClass {
       return; // Solo el panel activo es clickeable
     }
 
+    // Si es el panel 1 (índice 0), hacer el giro de revólver
+    if (index === 0 && !view) {
+      console.log('Panel 1 clicked, starting revolver spin');
+      this._startRevolverSpin();
+      return;
+    }
+
+    if (!view) {
+      console.log('No view defined, ignoring click');
+      return;
+    }
+
     console.log('Navigating to view:', view);
     this._navigateToView(view);
+  }
+
+  /**
+   * Inicia la animación de giro del revólver (2 segundos de giro continuo)
+   */
+  _startRevolverSpin() {
+    this.isSpinning = true;
+    const startRotation = this.currentRotation;
+    const totalRotations = 10; // Más rotaciones para que se vea más rápido y fluido
+    const targetRotation = startRotation + (360 * totalRotations);
+    const duration = 2000; // 2 segundos
+    const startTime = Date.now();
+
+    const animate = () => {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+
+      // Usar easing más agresivo para inicio rápido y desaceleración suave al final
+      const easeOut = 1 - Math.pow(1 - progress, 3);
+
+      this.currentRotation = startRotation + (targetRotation - startRotation) * easeOut;
+      this.requestUpdate();
+
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      } else {
+        // Al terminar, asegurar que vuelva al panel 1 (rotación 0)
+        this.currentRotation = 0;
+        this.isSpinning = false;
+        this.requestUpdate();
+      }
+    };
+
+    requestAnimationFrame(animate);
   }
 
   /**
@@ -625,7 +707,7 @@ export class WebDevScreen extends TranslatorClass {
 
   _renderPanelOne() {
     return html`
-      <div id="headerTextContainer">
+      <div id="headerTextContainer" class="${this.isLanguageFading ? 'languageFading' : ''}">
         <p id="preheader">${this.t('portfolio-mainpage-hero-preheader')}</p>
         <h1 id="headerText">${this.t('portfolio-mainpage-hero-header')}</h1>
         <h1 id="subheader">${this.t('portfolio-mainpage-hero-subheader')}</h1>
@@ -648,7 +730,8 @@ export class WebDevScreen extends TranslatorClass {
 
             // Determinar si el panel es clickeable
             const isActive = opacity === 1;
-            const isClickeable = isActive && content.view !== null;
+            // Panel 1 (índice 0) es clickeable para el efecto de giro, otros solo si tienen view
+            const isClickeable = isActive && (index === 0 || content.view !== null);
 
             return html`
               <div
@@ -777,7 +860,7 @@ export class WebDevScreen extends TranslatorClass {
           ${shouldShowDetail && detailViewToShow
             ? html`
                 <navigation-bar
-                  class="${this.isFadingOut ? 'fadeOut' : ''}"
+                  class="${this.isFadingOut ? 'fadeOut' : ''} ${this.isLanguageFading ? 'languageFading' : ''}"
                   .activeView=${detailViewToShow}
                   .preferedLanguage=${this.preferedLanguage}
                   @navigate=${this._handleNavigate}
