@@ -762,9 +762,18 @@ export class WebDevScreen extends TranslatorClass {
     if (this.isTransitioning) return;
     if (this.currentView === view) return;
 
-    // Guardar el índice del panel actual si estamos en el revolver
+    // Guardar el índice del panel basándose en la vista actual
     if (this.currentView === 'revolver') {
+      // Si estamos en el revolver, usar el panel actualmente visible
       this.lastPanelIndex = this._getActivePanelIndex();
+    } else if (view === 'revolver') {
+      // Si estamos regresando al revolver desde una página de detalle,
+      // usar el índice del panel correspondiente a la página actual
+      this.lastPanelIndex = this._getViewIndex(this.currentView);
+    } else {
+      // Si estamos navegando entre páginas de detalle,
+      // actualizar lastPanelIndex al índice de la vista destino
+      this.lastPanelIndex = this._getViewIndex(view);
     }
 
     // Detectar si estamos navegando entre páginas de detalle (no revolver)
@@ -788,6 +797,11 @@ export class WebDevScreen extends TranslatorClass {
       // Esperar 600ms (duración del fade out) antes de iniciar el slide
       setTimeout(() => {
         console.log('Fade out completado, iniciando slide...');
+        // Rotar el carrusel al panel correcto antes de cambiar la vista
+        const degreesPerPanel = 360 / this.numberOfPanels;
+        this.currentRotation = -this.lastPanelIndex * degreesPerPanel;
+        console.log('Rotando carrusel al panel', this.lastPanelIndex, 'rotación:', this.currentRotation);
+
         // Ahora sí, cambiar la vista para iniciar el slide
         this.currentView = view;
         this.requestUpdate();
