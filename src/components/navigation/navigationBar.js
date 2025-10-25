@@ -1,5 +1,5 @@
 import {html, css} from 'lit';
-import {TranslatorClass} from './TranslatorClass';
+import {TranslatorClass} from '../language/translatorClass';
 
 export class NavigationBar extends TranslatorClass {
   static get styles() {

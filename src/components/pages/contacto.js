@@ -1,71 +1,19 @@
+/* global Promise */
 import {html, css} from 'lit';
-import {TranslatorClass} from './TranslatorClass';
+import {BasePage} from './basePage';
 
-export class Contacto extends TranslatorClass {
+export class Contacto extends BasePage {
   static get styles() {
-    return css`
-      :host {
-        display: block;
-        width: 100vw;
-        height: 100vh;
-        position: relative;
-      }
-
-      .pageContainer {
-        width: 100%;
-        height: 100%;
-        background: transparent;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 0;
-        margin: 0;
-        position: relative;
-      }
-
-      .pageContainer::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(30, 30, 30, 0.85);
-        z-index: 1;
-        opacity: 0;
-        animation: fadeInOverlay 0.6s ease-in-out 1.2s forwards;
-      }
-
-      .pageContainer.fadeOut::before {
-        animation: fadeOutOverlay 0.6s ease-in-out forwards;
-      }
-
-      @keyframes fadeInOverlay {
-        from {
-          opacity: 0;
-        }
-        to {
-          opacity: 1;
-        }
-      }
-
-      @keyframes fadeOutOverlay {
-        from {
-          opacity: 1;
-        }
-        to {
-          opacity: 0;
-        }
-      }
-
+    return [
+      super.styles,
+      css`
       .contentContainer {
         display: flex;
         flex-direction: row;
         align-items: center;
         justify-content: center;
         gap: 2rem;
-        z-index: 2;
+        z-index: 12;
         position: absolute;
         left: 50%;
         top: 50%;
@@ -98,45 +46,6 @@ export class Contacto extends TranslatorClass {
         margin-bottom: 8px;
         filter: invert(79%) sepia(48%) saturate(5108%) hue-rotate(135deg)
           brightness(96%) contrast(92%);
-      }
-
-      .backButton {
-        position: absolute;
-        left: 2.5%;
-        top: 50%;
-        transform: translateY(-50%);
-        padding: 0;
-        background: transparent;
-        color: #ffffff;
-        border: none;
-        cursor: pointer;
-        font-size: 1.5rem;
-        transition: color 0.3s ease;
-        opacity: 0;
-        animation: fadeInButton 0.6s ease-in-out 1.5s forwards;
-        z-index: 2;
-      }
-
-      .backButton.fadeOut {
-        animation: fadeOutButton 0.6s ease-in-out forwards;
-      }
-
-      @keyframes fadeInButton {
-        from {
-          opacity: 0;
-        }
-        to {
-          opacity: 1;
-        }
-      }
-
-      @keyframes fadeOutButton {
-        from {
-          opacity: 1;
-        }
-        to {
-          opacity: 0;
-        }
       }
 
       @keyframes hvr-buzz-out {
@@ -172,14 +81,10 @@ export class Contacto extends TranslatorClass {
         }
       }
 
-      .backButton:hover {
-        color: #0acbd5;
-      }
-
       /* InfoCard Styles */
       .infoCard {
         position: absolute;
-        z-index: 3;
+        z-index: 13;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -274,14 +179,13 @@ export class Contacto extends TranslatorClass {
         width: 9vh;
         transition-delay: 0.6s;
       }
-    `;
+    `];
   }
 
   static get properties() {
     return {
       preferedLanguage: {type: String},
       isFadingOut: {type: Boolean},
-      isOverlayFadingOut: {type: Boolean},
       isInfoCardOpen: {type: Boolean},
       isInfoCardClosing: {type: Boolean},
     };
@@ -291,7 +195,6 @@ export class Contacto extends TranslatorClass {
     super();
     this.preferedLanguage = 'es-MX';
     this.isFadingOut = false;
-    this.isOverlayFadingOut = false;
     this.isInfoCardOpen = false;
     this.isInfoCardClosing = false;
     this.pendingNavigation = null;
@@ -316,7 +219,6 @@ export class Contacto extends TranslatorClass {
     if (this.isInfoCardOpen) {
       this._closeInfoCard(() => {
         // Después de cerrar, hacer el back
-        this.isOverlayFadingOut = true;
         this.isFadingOut = true;
         this.dispatchEvent(
           new CustomEvent('navigate-back', {
@@ -326,8 +228,7 @@ export class Contacto extends TranslatorClass {
         );
       });
     } else {
-      // Iniciar fade out del overlay y la flecha al mismo tiempo
-      this.isOverlayFadingOut = true;
+      // Iniciar fade out de la flecha
       this.isFadingOut = true;
 
       // Disparar navegación inmediatamente (webDevScreen manejará los tiempos)
@@ -389,7 +290,7 @@ export class Contacto extends TranslatorClass {
     }
 
     return html`
-      <div class="pageContainer ${this.isOverlayFadingOut ? 'fadeOut' : ''}">
+      <div class="pageContainer">
         <!-- InfoCard -->
         <div class="infoCard ${this.isInfoCardOpen && !this.isInfoCardClosing ? 'open' : ''} ${this.isInfoCardClosing ? 'closing' : ''}">
           <div class="infoData">

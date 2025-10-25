@@ -1,5 +1,5 @@
 import {LitElement} from 'lit';
-import locales from '../../locales.json' with {type: "json"};
+import locales from '../../../locales.json' with {type: "json"};
 
 export class TranslatorClass extends LitElement {
 

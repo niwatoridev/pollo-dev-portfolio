@@ -1,11 +1,13 @@
 import {html, css} from 'lit';
-import {TranslatorClass} from './TranslatorClass';
+import {TranslatorClass} from './language/translatorClass';
 import Typed from 'typed.js';
-import './LanguageSwitcher';
-import './ExperienciaProfesional';
-import './Portfolio';
-import './Contacto';
-import './NavigationBar';
+import './language/languageSwitchButton';
+import './pages/basePage';
+import './pages/experienciaProfesional';
+import './pages/portfolio';
+import './pages/contacto';
+import './navigation/navigationBar';
+import './navigation/revolver';
 
 export class WebDevScreen extends TranslatorClass {
   static get styles() {
@@ -125,6 +127,7 @@ export class WebDevScreen extends TranslatorClass {
         position: absolute;
         left: 1810px;
         top: 20px;
+        z-index: 1000;
       }
 
       body {
@@ -210,6 +213,7 @@ export class WebDevScreen extends TranslatorClass {
         -webkit-backface-visibility: hidden;
         -webkit-transform: translateZ(0);
         transform: translateZ(0);
+        z-index: 10;
       }
 
       .viewContainer.active {
@@ -282,6 +286,7 @@ export class WebDevScreen extends TranslatorClass {
         -webkit-backface-visibility: hidden;
         transform: translateZ(0);
         -webkit-transform: translateZ(0);
+        z-index: 10;
       }
 
       /* Animaciones para transiciones entre páginas de detalle */
@@ -391,6 +396,50 @@ export class WebDevScreen extends TranslatorClass {
         filter: drop-shadow(0 0 15px #0acbd5);
         transition: all 0.3s ease;
       }
+
+      /* Overlay global para páginas de detalle */
+      #globalOverlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(30, 30, 30, 0.7);
+        z-index: 1;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.6s ease-in-out;
+      }
+
+      #globalOverlay.visible {
+        opacity: 1;
+      }
+
+      #globalOverlay.fadeIn {
+        animation: fadeInOverlay 0.6s ease-in-out 1.2s forwards;
+      }
+
+      #globalOverlay.fadeOut {
+        animation: fadeOutOverlay 0.6s ease-in-out forwards;
+      }
+
+      @keyframes fadeInOverlay {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      @keyframes fadeOutOverlay {
+        from {
+          opacity: 1;
+        }
+        to {
+          opacity: 0;
+        }
+      }
     `;
   }
 
@@ -413,6 +462,7 @@ export class WebDevScreen extends TranslatorClass {
       isDetailTransitioning: {type: Boolean}, // Transición entre páginas de detalle
       outgoingDetailView: {type: String}, // Vista que está saliendo durante transición
       detailTransitionDirection: {type: String}, // 'right' (avanza) o 'left' (retrocede)
+      overlayState: {type: String}, // Estado del overlay: 'hidden', 'fadeIn', 'visible', 'fadeOut'
     };
   }
 
@@ -440,6 +490,7 @@ export class WebDevScreen extends TranslatorClass {
     this.isDetailTransitioning = false; // Transición entre páginas de detalle
     this.outgoingDetailView = null; // Vista que está saliendo durante transición
     this.detailTransitionDirection = 'right'; // 'right' (avanza) o 'left' (retrocede)
+    this.overlayState = 'hidden'; // Estado del overlay global
   }
 
   _onLanguageChanged(event) {
@@ -728,10 +779,11 @@ export class WebDevScreen extends TranslatorClass {
     const startTime = Date.now();
 
     if (direction === 'back') {
-      // REGRESO: Primero fade out del nav bar y botón, LUEGO slide
+      // REGRESO: Fade out del overlay, nav bar y botón, LUEGO slide
       console.log('Iniciando fade out...');
       this.isFadingOut = true;
       this.keepDetailVisible = true;
+      this.overlayState = 'fadeOut'; // Fade out del overlay
 
       // Esperar 600ms (duración del fade out) antes de iniciar el slide
       setTimeout(() => {
@@ -751,12 +803,16 @@ export class WebDevScreen extends TranslatorClass {
           this.isTransitioning = false;
           this.keepDetailVisible = false;
           this.isFadingOut = false;
+          this.overlayState = 'hidden'; // Ocultar overlay completamente
           this.requestUpdate();
         }, 1000);
       }, 600);
     } else if (isDetailToDetail) {
-      // NAVEGACIÓN ENTRE DETALLES: Deslizamiento cruzado
-      console.log('Navegación entre páginas de detalle con deslizamiento');
+      // NAVEGACIÓN ENTRE DETALLES: Overlay permanece visible
+      console.log(
+        'Navegación entre páginas de detalle - overlay permanece visible'
+      );
+      this.overlayState = 'visible'; // Mantener overlay visible sin animación
 
       // Determinar dirección basándose en los índices en panelContents
       const currentIndex = this._getViewIndex(this.currentView);
@@ -790,10 +846,17 @@ export class WebDevScreen extends TranslatorClass {
         }, 1000);
       }, 50);
     } else {
-      // AVANCE: Comportamiento normal (slide inmediato desde revolver a detalle)
+      // AVANCE: Overlay con animación desde revolver a detalle
       console.log('Previous view:', this.previousView, 'New view:', view);
+      this.overlayState = 'fadeIn'; // Fade in del overlay con delay
       this.currentView = view;
       this.requestUpdate();
+
+      // Después de la animación del overlay, cambiar a estado visible
+      setTimeout(() => {
+        this.overlayState = 'visible';
+        this.requestUpdate();
+      }, 1800); // 1.2s delay + 0.6s animación
 
       // Esperar a que termine la transición antes de limpiar
       setTimeout(() => {
@@ -992,6 +1055,9 @@ export class WebDevScreen extends TranslatorClass {
     return html`
       <div id="mainContainer">
         ${this.renderHeader()}
+
+        <!-- Overlay global para páginas de detalle -->
+        <div id="globalOverlay" class="${this.overlayState}"></div>
 
         <!-- Revolver Carousel - SIEMPRE renderizado -->
         <div class="${revolverClass}">${this.renderCarousel()}</div>

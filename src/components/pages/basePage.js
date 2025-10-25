@@ -1,7 +1,7 @@
 import {html, css} from 'lit';
-import {TranslatorClass} from './TranslatorClass';
+import {TranslatorClass} from '../language/translatorClass';
 
-export class ExperienciaProfesional extends TranslatorClass {
+export class BasePage extends TranslatorClass {
   static get styles() {
     return css`
       :host {
@@ -32,6 +32,7 @@ export class ExperienciaProfesional extends TranslatorClass {
         justify-content: center;
         padding: 0;
         margin: 0;
+        position: relative;
       }
 
       .contentContainer {
@@ -70,6 +71,7 @@ export class ExperienciaProfesional extends TranslatorClass {
         transition: color 0.3s ease;
         opacity: 0;
         animation: fadeInButton 0.6s ease-in-out 2.8s forwards;
+        z-index: 100;
       }
 
       .backButton.fadeOut {
@@ -122,6 +124,11 @@ export class ExperienciaProfesional extends TranslatorClass {
     );
   }
 
+  // Método que las páginas hijas deben sobrescribir para renderizar su contenido específico
+  renderContent() {
+    return html``;
+  }
+
   render() {
     // Aplicar clase al host
     if (this.isLanguageFading) {
@@ -132,16 +139,14 @@ export class ExperienciaProfesional extends TranslatorClass {
 
     return html`
       <div class="pageContainer">
-        <div class="contentContainer">
-          <h1>${this.t('experiencia-title')}</h1>
-          <p>${this.t('experiencia-placeholder')}</p>
-        </div>
-        <button class="backButton ${this.isFadingOut ? 'fadeOut' : ''}" @click=${this._handleBackClick}>
+        <div class="contentContainer">${this.renderContent()}</div>
+        <button
+          class="backButton ${this.isFadingOut ? 'fadeOut' : ''}"
+          @click=${this._handleBackClick}
+        >
           ◀
         </button>
       </div>
     `;
   }
 }
-
-window.customElements.define('experiencia-profesional', ExperienciaProfesional);
