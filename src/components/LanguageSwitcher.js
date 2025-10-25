@@ -67,11 +67,20 @@ class LanguageSwitcher extends LitElement {
   _toggleLanguage() {
     console.log(this.currentLanguage);
     this.currentLanguage = this.currentLanguage === 'es-MX' ? 'en-EN' : 'es-MX';
+
+    // Disparar evento local para el componente padre (webDevScreen)
     this.dispatchEvent(
       new CustomEvent('language-changed', {
         detail: {language: this.currentLanguage},
         bubbles: true,
         composed: true,
+      })
+    );
+
+    // Disparar evento global para todos los componentes que heredan de TranslatorClass
+    window.dispatchEvent(
+      new CustomEvent('language-changing', {
+        detail: {language: this.currentLanguage}
       })
     );
   }

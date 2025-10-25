@@ -61,6 +61,11 @@ export class NavigationBar extends TranslatorClass {
       .navLink.active:hover {
         opacity: 1;
       }
+
+      /* Language fade animation - solo para textos */
+      :host(.languageFading) .navLink {
+        opacity: 0 !important;
+      }
     `;
   }
 
@@ -88,17 +93,16 @@ export class NavigationBar extends TranslatorClass {
   }
 
   render() {
+    // Aplicar clase al host
+    if (this.isLanguageFading) {
+      this.classList.add('languageFading');
+    } else {
+      this.classList.remove('languageFading');
+    }
+
     return html`
       <nav class="navContainer">
         <ul class="navList">
-          <li class="navItem">
-            <a
-              class="navLink ${this.activeView === 'revolver' ? 'active' : ''}"
-              @click=${() => this._handleNavigate('revolver')}
-            >
-              Inicio
-            </a>
-          </li>
           <li class="navItem">
             <a
               class="navLink ${this.activeView === 'experiencia'
@@ -106,7 +110,7 @@ export class NavigationBar extends TranslatorClass {
                 : ''}"
               @click=${() => this._handleNavigate('experiencia')}
             >
-              Experiencia Profesional
+              ${this.t('navbar-experiencia')}
             </a>
           </li>
           <li class="navItem">
@@ -114,7 +118,7 @@ export class NavigationBar extends TranslatorClass {
               class="navLink ${this.activeView === 'portfolio' ? 'active' : ''}"
               @click=${() => this._handleNavigate('portfolio')}
             >
-              Portfolio
+              ${this.t('navbar-portfolio')}
             </a>
           </li>
           <li class="navItem">
@@ -122,7 +126,7 @@ export class NavigationBar extends TranslatorClass {
               class="navLink ${this.activeView === 'contacto' ? 'active' : ''}"
               @click=${() => this._handleNavigate('contacto')}
             >
-              Contacto
+              ${this.t('navbar-contacto')}
             </a>
           </li>
         </ul>

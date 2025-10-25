@@ -11,6 +11,17 @@ export class Portfolio extends TranslatorClass {
         position: relative;
       }
 
+      /* Language fade solo para textos */
+      .contentContainer h1,
+      .contentContainer p {
+        transition: opacity 0.3s ease;
+      }
+
+      :host(.languageFading) .contentContainer h1,
+      :host(.languageFading) .contentContainer p {
+        opacity: 0;
+      }
+
       .pageContainer {
         width: 100%;
         height: 100%;
@@ -35,8 +46,6 @@ export class Portfolio extends TranslatorClass {
         font-family: 'Oswald', serif;
         color: #0acbd5;
         margin: 0 0 2rem 0;
-        text-shadow: 1px 1px 1px #2e2e2e, 1px 2px 1px #2e2e2e,
-          1px 3px 1px #2e2e2e, 1px 4px 1px #2e2e2e;
       }
 
       p {
@@ -57,7 +66,7 @@ export class Portfolio extends TranslatorClass {
         color: #ffffff;
         border: none;
         cursor: pointer;
-        font-size: 2rem;
+        font-size: 1.5rem;
         transition: color 0.3s ease;
         opacity: 0;
         animation: fadeInButton 0.6s ease-in-out 2.8s forwards;
@@ -114,15 +123,18 @@ export class Portfolio extends TranslatorClass {
   }
 
   render() {
+    // Aplicar clase al host
+    if (this.isLanguageFading) {
+      this.classList.add('languageFading');
+    } else {
+      this.classList.remove('languageFading');
+    }
+
     return html`
       <div class="pageContainer">
         <div class="contentContainer">
-          <h1>Portfolio de Trabajos</h1>
-          <p>
-            Esta es la página de portfolio. Aquí se mostrarán los proyectos
-            y trabajos destacados.
-          </p>
-          <p>Contenido placeholder - En desarrollo.</p>
+          <h1>${this.t('portfolio-title')}</h1>
+          <p>${this.t('portfolio-placeholder')}</p>
         </div>
         <button class="backButton ${this.isFadingOut ? 'fadeOut' : ''}" @click=${this._handleBackClick}>
           ◀

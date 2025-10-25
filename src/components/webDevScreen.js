@@ -103,11 +103,7 @@ export class WebDevScreen extends TranslatorClass {
         text-shadow: 1px 1px 1px #2e2e2e, 1px 2px 1px #2e2e2e,
           1px 3px 1px #2e2e2e, 1px 4px 1px #2e2e2e, 1px 5px 1px #2e2e2e,
           1px 6px 1px #2e2e2e, 1px 7px 1px #2e2e2e, 1px 8px 1px #2e2e2e,
-          1px 9px 1px #2e2e2e, 1px 10px 1px #2e2e2e,
-          1px 18px 6px rgba(16, 16, 16, 0.4),
-          1px 22px 10px rgba(16, 16, 16, 0.2),
-          1px 25px 35px rgba(16, 16, 16, 0.2),
-          1px 30px 60px rgba(16, 16, 16, 0.4);
+          1px 9px 1px #2e2e2e, 1px 10px 1px #2e2e2e;
       }
 
       #typeWritingTextContainer {
@@ -157,6 +153,9 @@ export class WebDevScreen extends TranslatorClass {
         transform-style: preserve-3d;
         transition: transform 0.8s ease-in-out;
         transform: translateX(-57vw) translateY(-10vh);
+        will-change: transform;
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
       }
 
       .carouselPanel {
@@ -168,6 +167,8 @@ export class WebDevScreen extends TranslatorClass {
         will-change: transform, opacity;
         backface-visibility: hidden;
         -webkit-backface-visibility: hidden;
+        transform: translateZ(0);
+        -webkit-transform: translateZ(0);
       }
 
       .carouselButtons {
@@ -187,7 +188,7 @@ export class WebDevScreen extends TranslatorClass {
         color: #ffffff;
         border: none;
         cursor: pointer;
-        font-size: 32px;
+        font-size: 24px;
         transition: color 0.3s ease;
       }
 
@@ -276,6 +277,72 @@ export class WebDevScreen extends TranslatorClass {
         height: 100vh;
         top: 0;
         left: 0;
+        will-change: transform, opacity;
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+        transform: translateZ(0);
+        -webkit-transform: translateZ(0);
+      }
+
+      /* Animaciones para transiciones entre páginas de detalle */
+      .detailPageContainer.slideOutToLeft {
+        animation: slideOutToLeft 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      }
+
+      .detailPageContainer.slideInFromRight {
+        animation: slideInFromRight 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      }
+
+      .detailPageContainer.slideOutToRight {
+        animation: slideOutToRight 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      }
+
+      .detailPageContainer.slideInFromLeft {
+        animation: slideInFromLeft 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      }
+
+      @keyframes slideOutToLeft {
+        from {
+          transform: translateX(0);
+          opacity: 1;
+        }
+        to {
+          transform: translateX(-100vw);
+          opacity: 0;
+        }
+      }
+
+      @keyframes slideInFromRight {
+        from {
+          transform: translateX(100vw);
+          opacity: 1;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+
+      @keyframes slideOutToRight {
+        from {
+          transform: translateX(0);
+          opacity: 1;
+        }
+        to {
+          transform: translateX(100vw);
+          opacity: 0;
+        }
+      }
+
+      @keyframes slideInFromLeft {
+        from {
+          transform: translateX(-100vw);
+          opacity: 1;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
       }
 
       /* Fade in for navigation elements */
@@ -290,11 +357,7 @@ export class WebDevScreen extends TranslatorClass {
         animation: fadeOutNav 0.6s ease-in-out forwards;
       }
 
-      /* Language fade for navigation bar */
-      navigation-bar.languageFading {
-        opacity: 0 !important;
-        animation: none;
-      }
+      /* Language fade for navigation bar - Ahora manejado por TranslatorClass */
 
       @keyframes fadeInNav {
         from {
@@ -347,6 +410,9 @@ export class WebDevScreen extends TranslatorClass {
       isFadingOut: {type: Boolean}, // Nav bar y botón están haciendo fade out
       isSpinning: {type: Boolean}, // Carrusel está girando como revólver
       isLanguageFading: {type: Boolean}, // Texto está en fade durante cambio de idioma
+      isDetailTransitioning: {type: Boolean}, // Transición entre páginas de detalle
+      outgoingDetailView: {type: String}, // Vista que está saliendo durante transición
+      detailTransitionDirection: {type: String}, // 'right' (avanza) o 'left' (retrocede)
     };
   }
 
@@ -360,12 +426,6 @@ export class WebDevScreen extends TranslatorClass {
     // Carousel configuration
     this.numberOfPanels = 4; // Escalable: cambia este número para más paneles
     this.currentRotation = 0; // Ángulo actual de rotación en grados
-    this.panelContents = [
-      {title: 'WEB DEVELOPER', subtitle: 'AND ESPORTS PRODUCER', view: null}, // Panel 1: 0° (derecha/visible) - no clickeable
-      {title: 'EXPERIENCIA', subtitle: 'PROFESIONAL', view: 'experiencia'}, // Panel 2: 270° (arriba)
-      {title: 'PORTFOLIO', subtitle: 'DE TRABAJOS', view: 'portfolio'}, // Panel 3: 180° (izquierda)
-      {title: 'CONTACTO', subtitle: 'Y REDES', view: 'contacto'}, // Panel 4: 90° (abajo)
-    ];
 
     // Navigation state
     this.currentView = 'revolver'; // 'revolver', 'experiencia', 'portfolio', 'contacto'
@@ -377,10 +437,14 @@ export class WebDevScreen extends TranslatorClass {
     this.isFadingOut = false; // Nav bar y botón están haciendo fade out
     this.isSpinning = false; // Carrusel está girando como revólver
     this.isLanguageFading = false; // Texto está en fade durante cambio de idioma
+    this.isDetailTransitioning = false; // Transición entre páginas de detalle
+    this.outgoingDetailView = null; // Vista que está saliendo durante transición
+    this.detailTransitionDirection = 'right'; // 'right' (avanza) o 'left' (retrocede)
   }
 
   _onLanguageChanged(event) {
-    // Iniciar fade out
+    // Solo manejar el fade para el carrusel (headerTextContainer)
+    // El navbar se maneja solo a través de TranslatorClass
     this.isLanguageFading = true;
 
     // Después de 300ms (fade out completo), cambiar idioma
@@ -400,6 +464,27 @@ export class WebDevScreen extends TranslatorClass {
         }, 50);
       }, 50);
     }, 300);
+  }
+
+  get panelContents() {
+    return [
+      {title: 'WEB DEVELOPER', subtitle: 'AND ESPORTS PRODUCER', view: null}, // Panel 1: 0° (derecha/visible) - no clickeable
+      {
+        title: this.t('panel-two-title'),
+        subtitle: this.t('panel-two-subtitle'),
+        view: 'experiencia',
+      }, // Panel 2: 270° (arriba)
+      {
+        title: this.t('panel-three-title'),
+        subtitle: this.t('panel-three-subtitle'),
+        view: 'portfolio',
+      }, // Panel 3: 180° (izquierda)
+      {
+        title: this.t('panel-four-title'),
+        subtitle: this.t('panel-four-subtitle'),
+        view: 'contacto',
+      }, // Panel 4: 90° (abajo)
+    ];
   }
 
   updated(changedProperties) {
@@ -544,6 +629,13 @@ export class WebDevScreen extends TranslatorClass {
   }
 
   /**
+   * Obtiene el índice de una vista en el array panelContents
+   */
+  _getViewIndex(view) {
+    return this.panelContents.findIndex((panel) => panel.view === view);
+  }
+
+  /**
    * Maneja el click en un panel
    */
   _handlePanelClick(index, view) {
@@ -561,10 +653,9 @@ export class WebDevScreen extends TranslatorClass {
       return; // Solo el panel activo es clickeable
     }
 
-    // Si es el panel 1 (índice 0), hacer el giro de revólver
+    // Si es el panel 1 (índice 0), no hacer nada (ya no es clickeable)
     if (index === 0 && !view) {
-      console.log('Panel 1 clicked, starting revolver spin');
-      this._startRevolverSpin();
+      console.log('Panel 1 clicked, but no action (not clickeable anymore)');
       return;
     }
 
@@ -584,7 +675,7 @@ export class WebDevScreen extends TranslatorClass {
     this.isSpinning = true;
     const startRotation = this.currentRotation;
     const totalRotations = 10; // Más rotaciones para que se vea más rápido y fluido
-    const targetRotation = startRotation + (360 * totalRotations);
+    const targetRotation = startRotation + 360 * totalRotations;
     const duration = 2000; // 2 segundos
     const startTime = Date.now();
 
@@ -595,7 +686,8 @@ export class WebDevScreen extends TranslatorClass {
       // Usar easing más agresivo para inicio rápido y desaceleración suave al final
       const easeOut = 1 - Math.pow(1 - progress, 3);
 
-      this.currentRotation = startRotation + (targetRotation - startRotation) * easeOut;
+      this.currentRotation =
+        startRotation + (targetRotation - startRotation) * easeOut;
       this.requestUpdate();
 
       if (progress < 1) {
@@ -623,6 +715,10 @@ export class WebDevScreen extends TranslatorClass {
     if (this.currentView === 'revolver') {
       this.lastPanelIndex = this._getActivePanelIndex();
     }
+
+    // Detectar si estamos navegando entre páginas de detalle (no revolver)
+    const isDetailToDetail =
+      this.currentView !== 'revolver' && view !== 'revolver';
 
     // Establecer la dirección de la transición
     this.transitionDirection = direction;
@@ -658,8 +754,43 @@ export class WebDevScreen extends TranslatorClass {
           this.requestUpdate();
         }, 1000);
       }, 600);
+    } else if (isDetailToDetail) {
+      // NAVEGACIÓN ENTRE DETALLES: Deslizamiento cruzado
+      console.log('Navegación entre páginas de detalle con deslizamiento');
+
+      // Determinar dirección basándose en los índices en panelContents
+      const currentIndex = this._getViewIndex(this.currentView);
+      const targetIndex = this._getViewIndex(view);
+
+      // Si el índice destino es mayor, avanzamos (derecha), si es menor, retrocedemos (izquierda)
+      this.detailTransitionDirection =
+        targetIndex > currentIndex ? 'right' : 'left';
+
+      console.log(
+        `Transición: ${this.currentView}(${currentIndex}) → ${view}(${targetIndex}), dirección: ${this.detailTransitionDirection}`
+      );
+
+      this.isDetailTransitioning = true;
+      this.outgoingDetailView = this.currentView;
+
+      // Iniciar la animación de salida de la vista actual
+      this.requestUpdate();
+
+      // Después de 50ms, cambiar la vista para que la nueva entre
+      setTimeout(() => {
+        this.currentView = view;
+        this.requestUpdate();
+
+        // Esperar 1000ms (duración de la animación) antes de limpiar
+        setTimeout(() => {
+          this.isTransitioning = false;
+          this.isDetailTransitioning = false;
+          this.outgoingDetailView = null;
+          this.requestUpdate();
+        }, 1000);
+      }, 50);
     } else {
-      // AVANCE: Comportamiento normal (slide inmediato)
+      // AVANCE: Comportamiento normal (slide inmediato desde revolver a detalle)
       console.log('Previous view:', this.previousView, 'New view:', view);
       this.currentView = view;
       this.requestUpdate();
@@ -681,7 +812,14 @@ export class WebDevScreen extends TranslatorClass {
   /**
    * Maneja la navegación desde la Navigation Bar
    */
-  _handleNavigate(event) {
+  async _handleNavigate(event) {
+    // Si estamos en contacto y la InfoCard está abierta, cerrarla primero
+    if (this.currentView === 'contacto') {
+      const contactoComponent = this.shadowRoot.querySelector('contacto-page');
+      if (contactoComponent && contactoComponent.needsClosing()) {
+        await contactoComponent.closeInfoCardBeforeNavigation();
+      }
+    }
     this._navigateToView(event.detail.view);
   }
 
@@ -707,7 +845,10 @@ export class WebDevScreen extends TranslatorClass {
 
   _renderPanelOne() {
     return html`
-      <div id="headerTextContainer" class="${this.isLanguageFading ? 'languageFading' : ''}">
+      <div
+        id="headerTextContainer"
+        class="${this.isLanguageFading ? 'languageFading' : ''}"
+      >
         <p id="preheader">${this.t('portfolio-mainpage-hero-preheader')}</p>
         <h1 id="headerText">${this.t('portfolio-mainpage-hero-header')}</h1>
         <h1 id="subheader">${this.t('portfolio-mainpage-hero-subheader')}</h1>
@@ -730,8 +871,8 @@ export class WebDevScreen extends TranslatorClass {
 
             // Determinar si el panel es clickeable
             const isActive = opacity === 1;
-            // Panel 1 (índice 0) es clickeable para el efecto de giro, otros solo si tienen view
-            const isClickeable = isActive && (index === 0 || content.view !== null);
+            // Solo los paneles con view son clickeables (panel 1 ya no es clickeable)
+            const isClickeable = isActive && content.view !== null;
 
             return html`
               <div
@@ -860,12 +1001,36 @@ export class WebDevScreen extends TranslatorClass {
           ${shouldShowDetail && detailViewToShow
             ? html`
                 <navigation-bar
-                  class="${this.isFadingOut ? 'fadeOut' : ''} ${this.isLanguageFading ? 'languageFading' : ''}"
+                  class="${this.isFadingOut && !this.isDetailTransitioning
+                    ? 'fadeOut'
+                    : ''}"
                   .activeView=${detailViewToShow}
                   .preferedLanguage=${this.preferedLanguage}
                   @navigate=${this._handleNavigate}
                 ></navigation-bar>
-                <div class="detailPageContainer">
+
+                <!-- Página saliente durante transición detalle a detalle -->
+                ${this.isDetailTransitioning && this.outgoingDetailView
+                  ? html`
+                      <div
+                        class="detailPageContainer ${this
+                          .detailTransitionDirection === 'right'
+                          ? 'slideOutToLeft'
+                          : 'slideOutToRight'}"
+                      >
+                        ${this._renderDetailPageFor(this.outgoingDetailView)}
+                      </div>
+                    `
+                  : ''}
+
+                <!-- Página actual/entrante -->
+                <div
+                  class="detailPageContainer ${this.isDetailTransitioning
+                    ? this.detailTransitionDirection === 'right'
+                      ? 'slideInFromRight'
+                      : 'slideInFromLeft'
+                    : ''}"
+                >
                   ${this._renderDetailPageFor(detailViewToShow)}
                 </div>
               `
