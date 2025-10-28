@@ -1,5 +1,7 @@
 import {html, css} from 'lit';
 import {BasePage} from './basePage';
+import '../shared/modeToggleButton.js';
+import '../shared/baseToggleButton.js';
 
 export class ExperienciaProfesional extends BasePage {
   // Variables estáticas para mantener el estado entre navegaciones
@@ -30,9 +32,14 @@ export class ExperienciaProfesional extends BasePage {
           position: relative;
         }
 
-        .contentContainer {
+        .content-wrapper {
+          position: relative;
           width: 85vw;
           max-width: 1200px;
+        }
+
+        .contentContainer {
+          width: 100%;
           color: white;
           z-index: 10;
         }
@@ -384,53 +391,13 @@ export class ExperienciaProfesional extends BasePage {
           display: inline-block;
         }
 
-        /* Simple Mode Toggle Button */
-        .mode-toggle-input {
-          display: none;
-        }
-
+        /* Mode Toggle Button Positioning */
         .mode-toggle {
           position: absolute;
           bottom: -2.5rem;
           left: 50%;
           transform: translateX(-50%);
-          background: #0acbd5;
-          border: solid 1.4px #1e1e1e;
-          width: 2.8rem;
-          height: 1.4rem;
-          border-radius: 200px;
-          cursor: pointer;
-          display: inline-block;
-          transition: 0.2s;
-          padding: 1.4px;
           z-index: 100;
-        }
-
-        .mode-toggle-span {
-          position: absolute;
-          background-color: #1e1e1e;
-          width: 1.3125rem;
-          height: 1.3125rem;
-          border-radius: 100px;
-          margin: 0.044rem;
-          transition: all 0.2s ease-out;
-          left: 0.088rem;
-        }
-
-        .mode-toggle-icon {
-          position: absolute;
-          width: 0.85rem;
-          height: 0.85rem;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          color: #0acbd5;
-          stroke-width: 2;
-          transition: all 0.2s ease-out;
-        }
-
-        .mode-toggle-icon path {
-          stroke-width: 0.5;
         }
 
         /* Simple Mode Styles */
@@ -832,11 +799,6 @@ export class ExperienciaProfesional extends BasePage {
       requestAnimationFrame(() => {
         this.classList.add('visible');
       });
-
-      // Sincronizar el estado visual del botón con isSimpleMode
-      this.updateComplete.then(() => {
-        this._syncToggleButton();
-      });
     }, 200);
   }
 
@@ -862,53 +824,10 @@ export class ExperienciaProfesional extends BasePage {
     this.activeTab = tab;
   }
 
-  _syncToggleButton() {
-    const span = this.shadowRoot.querySelector('.mode-toggle-span');
-    const button = this.shadowRoot.querySelector('.mode-toggle');
-    const icon = this.shadowRoot.querySelector('.mode-toggle-icon');
-
-    if (!span || !button || !icon) {
-      console.log('[Experiencia] _syncToggleButton - elementos no encontrados');
-      return;
-    }
-
+  _handleModeChanged(e) {
+    this.isSimpleMode = e.detail.isSimpleMode;
     console.log(
-      '[Experiencia] _syncToggleButton - sincronizando con isSimpleMode:',
-      this.isSimpleMode
-    );
-
-    // Aplicar estilos inline como lo hace el language switcher
-    if (this.isSimpleMode) {
-      // Modo Simple activado - círculo a la derecha
-      span.style.left = '1.488rem';
-      span.style.background = '#0acbd5';
-      button.style.border = 'solid 0.088rem #0acbd5';
-      button.style.background = '#1e1e1e';
-      button.style.padding = '0.088rem';
-      icon.style.color = '#1e1e1e';
-      icon.style.transform = 'translate(calc(-50% + 1px), -50%)';
-    } else {
-      // Modo Terminal activado - círculo a la izquierda
-      span.style.left = '0.088rem';
-      span.style.background = '#1e1e1e';
-      button.style.background = '#0acbd5';
-      button.style.border = 'solid 0.088rem #1e1e1e';
-      button.style.padding = '0.088rem';
-      icon.style.color = '#0acbd5';
-      icon.style.transform = 'translate(-50%, -50%)';
-    }
-  }
-
-  _toggleMode(e) {
-    // Prevenir propagación para evitar clics dobles
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-
-    this.isSimpleMode = !this.isSimpleMode;
-    console.log(
-      '[Experiencia] _toggleMode - nuevo isSimpleMode:',
+      '[Experiencia] _handleModeChanged - nuevo isSimpleMode:',
       this.isSimpleMode
     );
 
@@ -921,11 +840,6 @@ export class ExperienciaProfesional extends BasePage {
 
     // Forzar actualización
     this.requestUpdate();
-
-    // Sincronizar el botón después del render
-    setTimeout(() => {
-      this._syncToggleButton();
-    }, 10);
   }
 
   _handleWelcomeChoice(knowsCode) {
@@ -949,16 +863,6 @@ export class ExperienciaProfesional extends BasePage {
       );
 
       this.requestUpdate();
-
-      // Sincronizar el botón después del render del nuevo contenido
-      this.updateComplete.then(() => {
-        setTimeout(() => {
-          console.log(
-            '[Experiencia] Sincronizando botón después de welcome choice'
-          );
-          this._syncToggleButton();
-        }, 100);
-      });
     }, 400); // Duración del fadeOut animation
   }
 
@@ -1089,26 +993,6 @@ export class ExperienciaProfesional extends BasePage {
           )}
         </div>
       </div>
-
-      <label class="mode-toggle" @click=${this._toggleMode}>
-        <input type="checkbox" class="mode-toggle-input" checked />
-        <span class="mode-toggle-span">
-          <svg
-            class="mode-toggle-icon"
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 15 15"
-          >
-            <path
-              fill="currentColor"
-              stroke="currentColor"
-              stroke-width="0.3"
-              d="M9.086 1a1.5 1.5 0 0 1 1.06.44l2.414 2.414l.1.11a1.5 1.5 0 0 1 .34.95V12.5a1.5 1.5 0 0 1-1.5 1.5h-8A1.5 1.5 0 0 1 2 12.5v-10A1.5 1.5 0 0 1 3.5 1zM3.5 2a.5.5 0 0 0-.5.5v10a.5.5 0 0 0 .5.5h8a.5.5 0 0 0 .5-.5V4.914a.5.5 0 0 0-.084-.277l-.062-.076l-2.415-2.415A.5.5 0 0 0 9.086 2zm7 8a.5.5 0 0 1 0 1h-6a.5.5 0 0 1 0-1zm0-3a.5.5 0 0 1 0 1h-6a.5.5 0 0 1 0-1zm-3-3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1 0-1z"
-            />
-          </svg>
-        </span>
-      </label>
     `;
   }
 
@@ -1247,25 +1131,6 @@ export class ExperienciaProfesional extends BasePage {
         </div>
       </div>
 
-      <label class="mode-toggle" @click=${this._toggleMode}>
-        <input type="checkbox" class="mode-toggle-input" />
-        <span class="mode-toggle-span">
-          <svg
-            class="mode-toggle-icon"
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 15 15"
-          >
-            <path
-              fill="currentColor"
-              stroke="currentColor"
-              stroke-width="0.3"
-              d="M9.036 2.314a.5.5 0 1 1 .928.371l-4 10a.5.5 0 1 1-.928-.37zm2.11 2.832a.5.5 0 0 1 .63-.064l.077.064l2 2l.065.078a.5.5 0 0 1-.065.63l-2 2a.5.5 0 1 1-.707-.708L12.793 7.5l-1.647-1.647l-.064-.078a.5.5 0 0 1 .064-.629m-8 0a.5.5 0 0 1 .707.707L2.207 7.5l1.646 1.646l.065.078a.5.5 0 0 1-.693.694l-.079-.065l-2-2a.5.5 0 0 1 0-.707z"
-            />
-          </svg>
-        </span>
-      </label>
     `;
   }
 
@@ -1282,11 +1147,27 @@ export class ExperienciaProfesional extends BasePage {
 
     return html`
       <div class="pageContainer">
-        <div
-          class="contentContainer ${shouldShowContainer ? 'terminal-mode' : ''}"
-        >
-          ${this.renderContent()}
+        <div class="content-wrapper">
+          <div
+            class="contentContainer ${shouldShowContainer ? 'terminal-mode' : ''}"
+          >
+            ${this.renderContent()}
+          </div>
+
+          <!-- Mode toggle button - fuera del renderContent para evitar re-renders -->
+          ${!this.showWelcome
+            ? html`
+                <mode-toggle-button
+                  class="mode-toggle"
+                  @mode-changed=${this._handleModeChanged}
+                  .checked=${this.isSimpleMode}
+                  .terminalLabel=${this.t('experiencia-mode-terminal')}
+                  .simpleLabel=${this.t('experiencia-mode-simple')}
+                ></mode-toggle-button>
+              `
+            : ''}
         </div>
+
         <button
           class="backButton ${this.isFadingOut ? 'fadeOut' : ''}"
           @click=${this._handleBackClick}

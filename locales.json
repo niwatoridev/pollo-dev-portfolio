@@ -35,6 +35,8 @@
     "experiencia-section-frontend": "Web Development",
     "experiencia-section-esports": "Broadcast & Content",
     "experiencia-status-active": "active",
+    "experiencia-mode-terminal": "Terminal Mode",
+    "experiencia-mode-simple": "Document Mode",
     "portfolio-title": "Work Portfolio",
     "portfolio-placeholder": "Content placeholder - Under development."
   },
@@ -74,6 +76,8 @@
     "experiencia-section-frontend": "Desarrollo Web",
     "experiencia-section-esports": "Broadcast y Contenido",
     "experiencia-status-active": "activo",
+    "experiencia-mode-terminal": "Modo Consola",
+    "experiencia-mode-simple": "Modo Documento",
     "portfolio-title": "Portafolio de Trabajos",
     "portfolio-placeholder": "Contenido placeholder - En desarrollo."
   }
