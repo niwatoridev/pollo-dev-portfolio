@@ -658,6 +658,71 @@ export class ExperienciaProfesional extends BasePage {
             font-size: 1.5rem;
           }
         }
+
+        /* Breakpoint para móviles pequeños */
+        @media (max-width: 480px) {
+          .contentContainer.terminal-mode {
+            height: 85vh;
+          }
+
+          .welcome-question {
+            font-size: 1.8rem;
+          }
+
+          .welcome-button {
+            padding: 0.8rem 1.5rem;
+            font-size: 0.9rem;
+          }
+
+          .terminal-body {
+            font-size: 0.75rem;
+            padding: 0.5rem;
+          }
+
+          .tab-button {
+            font-size: 0.8rem;
+            padding: 0.6rem 1rem;
+          }
+
+          .simple-mode {
+            padding: 0.75rem;
+          }
+
+          .simple-mode h2 {
+            font-size: 2rem;
+          }
+
+          .simple-section-title {
+            font-size: 1.5rem;
+          }
+
+          .simple-role {
+            font-size: 1.2rem;
+          }
+
+          .simple-desc {
+            font-size: 0.9rem;
+          }
+
+          .mode-toggle {
+            bottom: -2rem;
+          }
+        }
+
+        /* Landscape mobile */
+        @media (orientation: landscape) and (max-height: 600px) {
+          .contentContainer.terminal-mode {
+            height: 90vh;
+          }
+
+          .terminal-body {
+            font-size: 0.8rem;
+          }
+
+          .welcome-question {
+            font-size: 1.5rem;
+          }
+        }
       `,
     ];
   }
@@ -665,7 +730,7 @@ export class ExperienciaProfesional extends BasePage {
   static get properties() {
     return {
       ...super.properties,
-      frontendExperiences: {type: Array},
+      softdevExperiences: {type: Array},
       esportsExperiences: {type: Array},
       activeTab: {type: String},
       isSimpleMode: {type: Boolean},
@@ -679,7 +744,7 @@ export class ExperienciaProfesional extends BasePage {
 
   constructor() {
     super();
-    this.activeTab = 'frontend'; // 'frontend' o 'esports'
+    this.activeTab = 'softdev'; // 'softdev' or 'esports'
     this.isSimpleMode = false;
     this.isFadingContent = false;
     this._isMounted = false;
@@ -712,69 +777,60 @@ export class ExperienciaProfesional extends BasePage {
       );
     }
 
-    this.frontendExperiences = [
+    this.softdevExperiences = [
       {
-        role: 'Senior Full Stack Developer',
-        company: 'Tech Innovations Inc.',
-        period: '2022 - Present',
+        role: this.t('exp-softdev-1-role'),
+        company: this.t('exp-softdev-1-company'),
+        period: this.t('exp-softdev-1-period'),
         status: 'current',
-        description:
-          'Leading development of scalable web applications using modern frameworks. Architecting cloud-native solutions and mentoring junior developers.',
+        description: this.t('exp-softdev-1-desc'),
         technologies: [
-          'React',
-          'Node.js',
-          'AWS',
           'TypeScript',
-          'Docker',
-          'Kubernetes',
+          'JavaScript',
+          'React',
+          'Microservices',
+          'RESTful APIs',
+          'Jenkins CI/CD',
+          'Git',
+          'Feature Flags',
+          'Unit/E2E Testing',
         ],
       },
       {
-        role: 'Frontend Developer',
-        company: 'Digital Agency XYZ',
-        period: '2019 - 2020',
+        role: this.t('exp-softdev-2-role'),
+        company: this.t('exp-softdev-2-company'),
+        period: this.t('exp-softdev-2-period'),
         status: '',
-        description:
-          'Developed responsive web applications for clients across various industries. Focused on performance optimization and exceptional user experience.',
-        technologies: ['Vue.js', 'SASS', 'Webpack', 'REST APIs', 'Git'],
-      },
-      {
-        role: 'Web Developer & Designer',
-        company: 'Freelance',
-        period: '2017 - 2019',
-        status: '',
-        description:
-          'Created custom websites and web applications for small businesses. Specialized in modern, responsive designs with focus on usability.',
-        technologies: ['HTML5', 'CSS3', 'JavaScript', 'WordPress', 'PHP'],
+        description: this.t('exp-softdev-2-desc'),
+        technologies: [
+          'React',
+          'TypeScript',
+          'Microservices',
+          'RESTful APIs',
+          'Git',
+          'Jenkins CI/CD',
+        ],
       },
     ];
 
     this.esportsExperiences = [
       {
-        role: 'Esports Producer & Broadcast Engineer',
-        company: 'Esports Global',
-        period: '2020 - 2022',
+        role: this.t('exp-esports-1-role'),
+        company: this.t('exp-esports-1-company'),
+        period: this.t('exp-esports-1-period'),
         status: 'current',
-        description:
-          'Produced live esports tournaments with 100K+ concurrent viewers. Managed broadcast pipelines and coordinated production teams across multiple platforms.',
+        description: this.t('exp-esports-1-desc'),
         technologies: [
           'OBS',
           'vMix',
-          'Adobe Premiere',
-          'Twitch API',
-          'StreamLabs',
+          'Multi-platform Broadcasting',
+          'Twitch',
+          'YouTube Live',
+          'Team Coordination',
         ],
       },
-      {
-        role: 'Content Creator & Stream Producer',
-        company: 'Gaming Studios Inc.',
-        period: '2018 - 2020',
-        status: '',
-        description:
-          'Managed live streaming operations and content creation for gaming events. Coordinated with talent and technical teams to deliver high-quality broadcasts.',
-        technologies: ['StreamYard', 'Restream', 'Discord', 'YouTube Live'],
-      },
     ];
+
   }
 
   connectedCallback() {
@@ -923,12 +979,12 @@ export class ExperienciaProfesional extends BasePage {
       <div class="simple-mode">
         <h2>${this.t('experiencia-title')}</h2>
 
-        <!-- Frontend Development Section -->
+        <!-- Software Development Section -->
         <div class="simple-section">
           <h3 class="simple-section-title">
-            ${this.t('experiencia-tab-frontend')}
+            ${this.t('experiencia-tab-softdev')}
           </h3>
-          ${this.frontendExperiences.map(
+          ${this.softdevExperiences.map(
             (exp) => html`
               <div class="simple-experience">
                 <div class="simple-experience-header">
@@ -992,6 +1048,7 @@ export class ExperienciaProfesional extends BasePage {
             `
           )}
         </div>
+
       </div>
     `;
   }
@@ -1029,16 +1086,16 @@ export class ExperienciaProfesional extends BasePage {
     console.log('[Experiencia] Renderizando modo terminal');
 
     const currentExperiences =
-      this.activeTab === 'frontend'
-        ? this.frontendExperiences
+      this.activeTab === 'softdev'
+        ? this.softdevExperiences
         : this.esportsExperiences;
 
     const tabPath =
-      this.activeTab === 'frontend' ? 'frontend-dev' : 'esports-production';
+      this.activeTab === 'softdev' ? 'software-dev' : 'esports-production';
 
     const tabTitle =
-      this.activeTab === 'frontend'
-        ? this.t('experiencia-section-frontend')
+      this.activeTab === 'softdev'
+        ? this.t('experiencia-section-softdev')
         : this.t('experiencia-section-esports');
 
     return html`
@@ -1054,11 +1111,11 @@ export class ExperienciaProfesional extends BasePage {
       <!-- Tab Navigation -->
       <div class="tab-navigation">
         <button
-          class="tab-button ${this.activeTab === 'frontend' ? 'active' : ''}"
-          @click=${() => this._switchTab('frontend')}
+          class="tab-button ${this.activeTab === 'softdev' ? 'active' : ''}"
+          @click=${() => this._switchTab('softdev')}
         >
-          ${this.t('experiencia-tab-frontend')}
-          <span class="tab-count">${this.frontendExperiences.length}</span>
+          ${this.t('experiencia-tab-softdev')}
+          <span class="tab-count">${this.softdevExperiences.length}</span>
         </button>
         <button
           class="tab-button ${this.activeTab === 'esports' ? 'active' : ''}"

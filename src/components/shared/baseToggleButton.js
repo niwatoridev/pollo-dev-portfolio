@@ -46,6 +46,44 @@ export class BaseToggleButton extends LitElement {
         left: 50%;
         transform: translate(-50%, -50%);
       }
+
+      /* === MEDIA QUERIES PARA RESPONSIVE DESIGN === */
+
+      /* Tablet y pantallas medianas */
+      @media (max-width: 768px) {
+        .button {
+          width: 3.5rem;
+          height: 1.75rem;
+        }
+
+        .span {
+          width: 1.625rem;
+          height: 1.625rem;
+        }
+
+        .icon-container {
+          width: 1.2rem;
+          height: 1.2rem;
+        }
+      }
+
+      /* Móviles */
+      @media (max-width: 480px) {
+        .button {
+          width: 3rem;
+          height: 1.5rem;
+        }
+
+        .span {
+          width: 1.375rem;
+          height: 1.375rem;
+        }
+
+        .icon-container {
+          width: 1rem;
+          height: 1rem;
+        }
+      }
     `;
   }
 
@@ -101,9 +139,17 @@ export class BaseToggleButton extends LitElement {
 
     if (!span || !button) return;
 
+    // Calcular posición del círculo basado en el tamaño de la pantalla
+    let rightPosition = '2.125rem'; // Desktop por defecto
+    if (window.innerWidth <= 480) {
+      rightPosition = '1.5rem'; // Móvil
+    } else if (window.innerWidth <= 768) {
+      rightPosition = '1.875rem'; // Tablet
+    }
+
     if (checked) {
       // Estado "activado" - círculo a la derecha
-      span.style.left = '2.125rem';
+      span.style.left = rightPosition;
       span.style.background = '#0acbd5';
       button.style.border = 'solid 0.125rem #0acbd5';
       button.style.padding = '0.125rem';

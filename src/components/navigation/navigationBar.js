@@ -66,6 +66,50 @@ export class NavigationBar extends TranslatorClass {
       :host(.languageFading) .navLink {
         opacity: 0 !important;
       }
+
+      /* === MEDIA QUERIES PARA RESPONSIVE DESIGN === */
+
+      /* Tablet y pantallas medianas */
+      @media (max-width: 768px) {
+        .navList {
+          gap: 30px;
+        }
+
+        .navLink {
+          font-size: 0.875rem;
+          padding: 8px 12px;
+        }
+      }
+
+      /* Móviles */
+      @media (max-width: 480px) {
+        .navContainer {
+          padding: 15px 0;
+        }
+
+        .navList {
+          gap: 15px;
+          flex-wrap: wrap;
+          justify-content: center;
+        }
+
+        .navLink {
+          font-size: 0.75rem;
+          padding: 6px 10px;
+        }
+      }
+
+      /* Móviles muy pequeños */
+      @media (max-width: 360px) {
+        .navList {
+          gap: 10px;
+        }
+
+        .navLink {
+          font-size: 0.7rem;
+          padding: 5px 8px;
+        }
+      }
     `;
   }
 

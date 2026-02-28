@@ -99,6 +99,65 @@ export class BasePage extends TranslatorClass {
       .backButton:hover {
         color: #0acbd5;
       }
+
+      /* === MEDIA QUERIES PARA RESPONSIVE DESIGN === */
+
+      /* Tablet y pantallas medianas */
+      @media (max-width: 768px) {
+        .contentContainer {
+          width: 90vw;
+        }
+
+        h1 {
+          font-size: 2.5rem;
+          margin: 0 0 1.5rem 0;
+        }
+
+        p {
+          font-size: 1rem;
+          line-height: 1.6;
+        }
+
+        .backButton {
+          font-size: 1.2rem;
+          left: 5%;
+        }
+      }
+
+      /* Móviles */
+      @media (max-width: 480px) {
+        .contentContainer {
+          width: 95vw;
+        }
+
+        h1 {
+          font-size: 2rem;
+          margin: 0 0 1rem 0;
+        }
+
+        p {
+          font-size: 0.9rem;
+          line-height: 1.5;
+        }
+
+        .backButton {
+          font-size: 1rem;
+          left: 3%;
+        }
+      }
+
+      /* Landscape mobile */
+      @media (max-height: 600px) and (orientation: landscape) {
+        h1 {
+          font-size: 1.8rem;
+          margin: 0 0 0.5rem 0;
+        }
+
+        p {
+          font-size: 0.85rem;
+          margin: 0.5rem 0;
+        }
+      }
     `;
   }
 

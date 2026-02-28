@@ -111,6 +111,84 @@ export class Revolver extends TranslatorClass {
       :host(.languageFading) .panelSubtitle {
         opacity: 0;
       }
+
+      /* === MEDIA QUERIES PARA RESPONSIVE DESIGN === */
+
+      /* Tablet y pantallas medianas */
+      @media (max-width: 768px) {
+        #carouselContainer {
+          width: 80vw;
+          height: 80vw;
+          max-width: 350px;
+          max-height: 350px;
+        }
+
+        #subheader {
+          font-size: 1.8rem;
+        }
+
+        .panelSubtitle {
+          font-size: 1rem;
+        }
+
+        .arrowButton {
+          font-size: 20px;
+        }
+
+        .arrowButton.left {
+          left: 10px;
+        }
+
+        .arrowButton.right {
+          right: 10px;
+        }
+      }
+
+      /* Móviles */
+      @media (max-width: 480px) {
+        #carouselContainer {
+          width: 90vw;
+          height: 90vw;
+          max-width: 280px;
+          max-height: 280px;
+        }
+
+        #subheader {
+          font-size: 1.5rem;
+        }
+
+        .panelSubtitle {
+          font-size: 0.9rem;
+        }
+
+        .arrowButton {
+          font-size: 18px;
+        }
+
+        .arrowButton.left {
+          left: 5px;
+        }
+
+        .arrowButton.right {
+          right: 5px;
+        }
+      }
+
+      /* Landscape mobile */
+      @media (max-height: 600px) and (orientation: landscape) {
+        #carouselContainer {
+          width: 50vh;
+          height: 50vh;
+        }
+
+        #subheader {
+          font-size: 1.3rem;
+        }
+
+        .panelSubtitle {
+          font-size: 0.8rem;
+        }
+      }
     `;
   }
 
@@ -133,7 +211,7 @@ export class Revolver extends TranslatorClass {
 
   get panelContents() {
     return [
-      {title: 'WEB DEVELOPER', subtitle: 'AND ESPORTS PRODUCER', view: null},
+      {title: this.t('panel-one-title'), subtitle: this.t('panel-one-subtitle'), view: null},
       {title: this.t('panel-two-title'), subtitle: this.t('panel-two-subtitle'), view: 'experiencia'},
       {title: this.t('panel-three-title'), subtitle: this.t('panel-three-subtitle'), view: 'portfolio'},
       {title: this.t('panel-four-title'), subtitle: this.t('panel-four-subtitle'), view: 'contacto'},
@@ -180,7 +258,15 @@ export class Revolver extends TranslatorClass {
   _calculatePanelTransform(index) {
     const anglePerPanel = 360 / this.numberOfPanels;
     const angle = index * anglePerPanel - this.currentRotation;
-    const radius = 300;
+
+    // Radio responsivo basado en el ancho de la ventana
+    let radius = 300; // Desktop por defecto
+    if (window.innerWidth <= 480) {
+      radius = 180; // Móvil
+    } else if (window.innerWidth <= 768) {
+      radius = 220; // Tablet
+    }
+
     return `rotateY(${angle}deg) translateZ(${radius}px)`;
   }
 

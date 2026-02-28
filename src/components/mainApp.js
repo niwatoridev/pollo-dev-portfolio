@@ -125,7 +125,7 @@ export class WebDevScreen extends TranslatorClass {
 
       #langButton {
         position: absolute;
-        left: 1810px;
+        right: 20px;
         top: 20px;
         z-index: 1000;
       }
@@ -438,6 +438,85 @@ export class WebDevScreen extends TranslatorClass {
         }
         to {
           opacity: 0;
+        }
+      }
+
+      /* === MEDIA QUERIES PARA RESPONSIVE DESIGN === */
+
+      /* Tablet y pantallas medianas */
+      @media (max-width: 768px) {
+        #langButton {
+          right: 10px;
+          top: 10px;
+        }
+
+        h1 {
+          font-size: 3rem;
+        }
+
+        #headerText {
+          -webkit-text-stroke: 1px #0acbd5;
+          margin-bottom: -30px;
+        }
+
+        #headerTextContainer {
+          width: 90vw;
+        }
+
+        #typeWritingText {
+          font-size: 1rem;
+        }
+
+        #preheader {
+          font-size: 0.9rem;
+        }
+
+        .carouselPanel {
+          width: 90vw;
+        }
+      }
+
+      /* Móviles */
+      @media (max-width: 480px) {
+        h1 {
+          font-size: 2rem;
+        }
+
+        #headerText {
+          -webkit-text-stroke: 0.8px #0acbd5;
+          margin-bottom: -20px;
+        }
+
+        #typeWritingText {
+          font-size: 0.85rem;
+        }
+
+        #preheader {
+          font-size: 0.8rem;
+        }
+
+        .carouselPanel {
+          width: 95vw;
+        }
+
+        #langButton {
+          right: 5px;
+          top: 5px;
+        }
+      }
+
+      /* Landscape mobile */
+      @media (max-height: 600px) and (orientation: landscape) {
+        h1 {
+          font-size: 2.5rem;
+        }
+
+        #headerText {
+          margin-bottom: -20px;
+        }
+
+        #typeWritingTextContainer {
+          margin-top: 1vh;
         }
       }
     `;

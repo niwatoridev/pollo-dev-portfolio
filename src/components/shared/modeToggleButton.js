@@ -69,6 +69,52 @@ class ModeToggleButton extends BaseToggleButton {
         :host(:hover) .mode-label {
           opacity: 1;
         }
+
+        /* === MEDIA QUERIES PARA RESPONSIVE DESIGN === */
+
+        /* Tablet y pantallas medianas */
+        @media (max-width: 768px) {
+          .button {
+            width: 2.1rem;
+            height: 1.05rem;
+          }
+
+          .span {
+            width: 0.98rem;
+            height: 0.98rem;
+          }
+
+          svg {
+            width: 0.57rem;
+            height: 0.57rem;
+          }
+
+          .mode-label {
+            font-size: 0.65rem;
+          }
+        }
+
+        /* Móviles */
+        @media (max-width: 480px) {
+          .button {
+            width: 1.8rem;
+            height: 0.9rem;
+          }
+
+          .span {
+            width: 0.84rem;
+            height: 0.84rem;
+          }
+
+          svg {
+            width: 0.49rem;
+            height: 0.49rem;
+          }
+
+          .mode-label {
+            font-size: 0.6rem;
+          }
+        }
       `,
     ];
   }
@@ -165,9 +211,17 @@ class ModeToggleButton extends BaseToggleButton {
 
     if (!span || !button) return;
 
+    // Calcular posición del círculo basado en el tamaño de la pantalla
+    let rightPosition = '1.275rem'; // Desktop por defecto
+    if (window.innerWidth <= 480) {
+      rightPosition = '0.9rem'; // Móvil
+    } else if (window.innerWidth <= 768) {
+      rightPosition = '1.125rem'; // Tablet
+    }
+
     if (checked) {
       // Estado "activado" - círculo a la derecha (ajustado para el tamaño reducido)
-      span.style.left = '1.275rem';
+      span.style.left = rightPosition;
       span.style.background = '#0acbd5';
       button.style.border = 'solid 0.075rem #0acbd5';
       button.style.padding = '0.075rem';

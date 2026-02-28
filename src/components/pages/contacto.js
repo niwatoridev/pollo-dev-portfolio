@@ -179,6 +179,104 @@ export class Contacto extends BasePage {
         width: 9vh;
         transition-delay: 0.6s;
       }
+
+      /* === MEDIA QUERIES PARA RESPONSIVE DESIGN === */
+
+      /* Tablet y pantallas medianas */
+      @media (max-width: 768px) {
+        .contentContainer {
+          flex-direction: column;
+          gap: 1.5rem;
+        }
+
+        .contactButton img {
+          width: 7vh;
+          margin-top: 6px;
+          margin-bottom: 6px;
+        }
+
+        .infoData {
+          grid-template-columns: 1fr;
+          gap: 1.5rem;
+          font-size: 1.5rem;
+        }
+
+        .profileImage {
+          width: 200px;
+          height: 200px;
+        }
+
+        .infoName {
+          font-size: 2.5rem;
+        }
+
+        .contentContainer.compact {
+          transform: translate(-50%, calc(50% + 120px));
+        }
+
+        .contentContainer.compact .contactButton img {
+          width: 4vh;
+        }
+
+        .infoColumn {
+          text-align: center;
+        }
+      }
+
+      /* Móviles */
+      @media (max-width: 480px) {
+        .contactButton img {
+          width: 60px;
+          height: 60px;
+        }
+
+        .infoData {
+          font-size: 1.2rem;
+          gap: 1rem;
+          padding: 1rem;
+        }
+
+        .profileImage {
+          width: 150px;
+          height: 150px;
+          transform: scale(1.1);
+        }
+
+        .infoName {
+          font-size: 2rem;
+        }
+
+        .infoCard {
+          width: 95vw;
+          padding: 1.5rem;
+        }
+
+        .contentContainer.compact .contactButton img {
+          width: 50px;
+          height: 50px;
+        }
+      }
+
+      /* Landscape mobile */
+      @media (max-height: 600px) and (orientation: landscape) {
+        .profileImage {
+          width: 120px;
+          height: 120px;
+        }
+
+        .infoData {
+          font-size: 1rem;
+        }
+
+        .infoName {
+          font-size: 1.8rem;
+        }
+
+        .contactButton img {
+          width: 50px;
+          height: 50px;
+        }
+      }
     `];
   }
 
