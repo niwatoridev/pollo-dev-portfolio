@@ -154,7 +154,7 @@ export class Portfolio extends BasePage {
       {
         name: this.t('portfolio-1-name'),
         desc: this.t('portfolio-1-desc'),
-        logo: '../../media/images/logos/RADAR3W.png',
+        logo: '/media/images/logos/RADAR3W.png',
         url: 'https://test.radartcg.com',
         technologies: [
           'React 18',
@@ -171,7 +171,7 @@ export class Portfolio extends BasePage {
       {
         name: this.t('portfolio-2-name'),
         desc: this.t('portfolio-2-desc'),
-        logo: '../../media/images/logos/medico-transparent.png',
+        logo: '/media/images/logos/medico-transparent.png',
         url: 'https://www.grupomedicojuridico.mx/',
         technologies: [
           'HTML5',

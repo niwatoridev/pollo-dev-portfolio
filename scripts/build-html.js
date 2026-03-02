@@ -1,0 +1,61 @@
+import {mkdirSync, cpSync, writeFileSync} from 'fs';
+
+mkdirSync('build', {recursive: true});
+
+// Copy media assets
+cpSync('media', 'build/media', {recursive: true});
+
+// Generate production index.html
+const html = `<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>esMunozDev</title>
+    <script type="module" src="./bundle.js"></script>
+    <script src="https://code.iconify.design/1/1.0.4/iconify.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Mona+Sans:ital,wght@0,200..900;1,200..900&family=Oswald:wght@200..700&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&family=Space+Grotesk:wght@300..700&family=Rock+Salt&family=Indie+Flower&family=Shadows+Into+Light&family=Patrick+Hand&family=Amatic+SC:wght@700&family=Covered+By+Your+Grace&family=Homemade+Apple&family=Permanent+Marker&family=Caveat:wght@700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #1e1e1e;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #0acbd5;
+      border-radius: 50px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #b9b9b9;
+      height: 10px;
+    }
+
+    ::-webkit-scrollbar-button {
+      display: none;
+    }
+  </style>
+  <body>
+    <web-dev-screen></web-dev-screen>
+  </body>
+</html>
+`;
+
+writeFileSync('build/index.html', html);
+console.log('Production index.html generated in build/');

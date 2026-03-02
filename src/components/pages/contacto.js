@@ -399,7 +399,7 @@ export class Contacto extends BasePage {
             </div>
             <img
               class="profileImage"
-              src="../../media/images/pictures/DSC00967.JPG"
+              src="/media/images/pictures/DSC00967.JPG"
               alt="Esteban Muñoz"
             />
             <div class="infoColumn">
@@ -420,7 +420,7 @@ export class Contacto extends BasePage {
             rel="noopener noreferrer"
             title="LinkedIn"
           >
-            <img src="../../media/images/icons/linkedin.png" alt="LinkedIn" />
+            <img src="/media/images/icons/linkedin.png" alt="LinkedIn" />
           </a>
 
           <a
@@ -430,7 +430,7 @@ export class Contacto extends BasePage {
             rel="noopener noreferrer"
             title="GitHub"
           >
-            <img src="../../media/images/icons/github-sign.png" alt="GitHub" />
+            <img src="/media/images/icons/github-sign.png" alt="GitHub" />
           </a>
 
           <a
@@ -440,7 +440,7 @@ export class Contacto extends BasePage {
             rel="noopener noreferrer"
             title="Instagram"
           >
-            <img src="../../media/images/icons/instagram.png" alt="Instagram" />
+            <img src="/media/images/icons/instagram.png" alt="Instagram" />
           </a>
 
           <button
@@ -449,7 +449,7 @@ export class Contacto extends BasePage {
             title="Info Personal"
           >
             <img
-              src="../../media/images/icons/id-card.png"
+              src="/media/images/icons/id-card.png"
               alt="Info Personal"
             />
           </button>

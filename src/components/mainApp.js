@@ -550,7 +550,7 @@ export class WebDevScreen extends TranslatorClass {
     this.preferedLanguage = 'es-MX';
     this.typingTextVisible = true;
     this.typedInstance = null;
-    this.heroVideoSource = '../../media/videos/blurredHeroShot.mp4';
+    this.heroVideoSource = '/media/videos/blurredHeroShot.mp4';
 
     // Carousel configuration
     this.numberOfPanels = 4; // Escalable: cambia este número para más paneles

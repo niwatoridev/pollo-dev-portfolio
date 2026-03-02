@@ -30,9 +30,9 @@ class LanguageSwitcher extends BaseToggleButton {
     super();
     this.currentLanguage = 'es-MX';
     this.espIconRoute =
-      '../../media/images/lang/material-symbols--language-spanish.png';
+      '/media/images/lang/material-symbols--language-spanish.png';
     this.engIconRoute =
-      '../../media/images/lang/material-symbols--language-us.png';
+      '/media/images/lang/material-symbols--language-us.png';
     this.espImgFilterConfig =
       'invert(79%) sepia(48%) saturate(5108%) hue-rotate(135deg) brightness(96%) contrast(92%)';
     this.engImgFilterConfig =
