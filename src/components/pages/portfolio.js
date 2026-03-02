@@ -55,6 +55,7 @@ export class Portfolio extends BasePage {
           color: #999999;
           line-height: 1.6;
           margin: 0 0 1.2rem 0;
+          flex: 1;
         }
 
         .card-tech {
