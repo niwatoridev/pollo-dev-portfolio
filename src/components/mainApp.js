@@ -570,6 +570,30 @@ export class WebDevScreen extends TranslatorClass {
     this.outgoingDetailView = null; // Vista que está saliendo durante transición
     this.detailTransitionDirection = 'right'; // 'right' (avanza) o 'left' (retrocede)
     this.overlayState = 'hidden'; // Estado del overlay global
+    this._wheelCooldown = false;
+    this._handleWheel = this._handleWheel.bind(this);
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    window.addEventListener('wheel', this._handleWheel, {passive: false});
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    window.removeEventListener('wheel', this._handleWheel);
+  }
+
+  _handleWheel(event) {
+    if (this.currentView !== 'revolver' || this._wheelCooldown) return;
+    event.preventDefault();
+    this._wheelCooldown = true;
+    if (event.deltaY > 0) {
+      this.rotateCounterClockwise();
+    } else {
+      this.rotateClockwise();
+    }
+    setTimeout(() => { this._wheelCooldown = false; }, 600);
   }
 
   _onLanguageChanged(event) {
